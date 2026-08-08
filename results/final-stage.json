@@ -1,0 +1,185 @@
+{
+  "stage": "final",
+  "title": "Cross-Cutting Architecture Challenge: Shareable Tool State",
+  "model": "opencode-go/deepseek-v4-flash",
+  "feature": "tool input state persisted to URL with safe restore; targets json-formatter, base64-codec, unix-timestamp, color-converter, regex-tester",
+  "process": {
+    "architects": [
+      {
+        "id": "A",
+        "essence": "per-tool typed state codec in lazy chunk; app-owned envelope v=1 with per-key query params; Share as CopyButton in ToolHeader actions slot; explicit module load replacing lazy()"
+      },
+      {
+        "id": "B",
+        "essence": "per-tool codec (version/defaultValue/parse/serialize) + core serialization + ui hook with 400ms debounced history.replaceState; global snapshot store; native History API bypassing react-router"
+      },
+      {
+        "id": "C",
+        "essence": "per-tool zod codec via zodStateCodec in core; single opaque ?s=<version>.<base64url(JSON)> transport; router-agnostic useToolUrlState hook (mount-time restore, never writes URL); one-line ToolPage change key={search}; Share = existing CopyButton in tool ActionArea"
+      }
+    ],
+    "architectFailures": [
+      {
+        "worker": "C",
+        "attempt": 1,
+        "failure": "empty result returned; report file not written",
+        "action": "relaunched with explicit write-and-verify instruction",
+        "outcome": "succeeded"
+      }
+    ],
+    "reviewerSelection": "C",
+    "selectionRationale": [
+      "lowest migration risk and strictest constraint compliance (one-line app change; URL never rewritten; existing prop-less Tool.test.tsx files pass unchanged)",
+      "correct responsibility split with least machinery (tool-folder codec / pure core serialization / one ui hook; no store, no debounce, no useSyncExternalStore)",
+      "best testability and type safety (pure failure-handling matrix in core; zod-inferred types; zero any)",
+      "100-200 tool scaling costs nothing shared (tool-folder-only additions)"
+    ],
+    "planSynthesis": false,
+    "planRevisions": 0,
+    "recordedImplementationDeviations": [
+      {
+        "description": "restore recompute implemented via lazy useState initializer instead of frozen plan's useEffect(() => { if (restored) setResult(...) }, [])",
+        "rationale": "functionally equivalent (computes once at mount), avoids setState-in-effect double render and eslint suppression",
+        "severity": "MINOR",
+        "planRevision": false
+      }
+    ]
+  },
+  "implementation": {
+    "workers": 1,
+    "changedFiles": 28,
+    "insertions": 1855,
+    "deletions": 78,
+    "sharedFilesChanged": [
+      "packages/core/src/url-state.ts (new)",
+      "packages/core/src/index.ts",
+      "packages/ui/src/useToolUrlState.ts (new)",
+      "packages/ui/src/index.ts",
+      "apps/web/src/pages/ToolPage.tsx"
+    ],
+    "perToolFilesChanged": 15,
+    "toolsTouched": [
+      "json-formatter",
+      "base64-codec",
+      "unix-timestamp",
+      "color-converter",
+      "regex-tester"
+    ],
+    "untouchedTools": 13,
+    "mergeConflicts": 0,
+    "newDependencies": 0,
+    "ciChanges": 0,
+    "testsAdded": {
+      "coreUrlState": 16,
+      "uiHook": 6,
+      "perTool": 15,
+      "e2e": 4,
+      "total": 37
+    }
+  },
+  "validation": {
+    "validationRuns": 10,
+    "failedValidationRuns": 7,
+    "runs": [
+      { "command": "pnpm validate", "result": "FAIL", "category": "format:check 11 files" },
+      { "command": "pnpm validate", "result": "FAIL", "category": "format:check results/*.md" },
+      { "command": "pnpm validate", "result": "FAIL", "category": "lint 2 unused imports" },
+      {
+        "command": "pnpm validate",
+        "result": "FAIL",
+        "category": "typecheck tools as-const flags"
+      },
+      {
+        "command": "pnpm validate",
+        "result": "FAIL",
+        "category": "typecheck web e2e context fixture"
+      },
+      {
+        "command": "pnpm validate",
+        "result": "FAIL",
+        "category": "typecheck web e2e wrong fixture name"
+      },
+      { "command": "pnpm validate", "result": "PASS", "category": "423 unit tests" },
+      { "command": "pnpm validate:full", "result": "PASS", "category": "build + 8 e2e" },
+      {
+        "command": "pnpm validate:full",
+        "result": "FAIL",
+        "category": "format:check final-review.md"
+      },
+      { "command": "pnpm validate:full", "result": "PASS", "category": "final gate" }
+    ],
+    "defectClassifications": {
+      "IMPLEMENTATION_DEFECT": 3,
+      "TEST_DEFECT": 4,
+      "ARCHITECTURE_DEFECT": 0,
+      "FOUNDATION_LIMITATION": 0,
+      "SPEC_AMBIGUITY": 0
+    },
+    "finalUnitTests": 423,
+    "existingUnitTests": 386,
+    "newUnitTests": 37,
+    "e2eTests": 8,
+    "existingE2e": 4,
+    "newE2e": 4,
+    "finalResult": "PASS"
+  },
+  "selfCorrections": {
+    "total": 10,
+    "categoriesOverlap": false,
+    "note": "each fix assigned exactly one primary category",
+    "byCategory": {
+      "format": 2,
+      "type": 3,
+      "test": 4,
+      "lint": 1
+    },
+    "details": [
+      "prettier write round 1 (source files)",
+      "prettier write round 2 (results/*.md from architect/reviewer workers)",
+      "zodStateCodec generic signature: TS inferred schema input type (all-optional) instead of output type",
+      "regex-tester test: as-const flags tuple too narrow for codec",
+      "e2e: context fixture typing (2 attempts)",
+      "core test: string-replace mutation of base64url was a no-op, rebuilt invalid payload directly",
+      "ui hook test: two rendered probes collided; unmount before re-render",
+      "tool tests: vi.restoreAllMocks() stripped the global clipboard vi.fn()",
+      "tool tests: userEvent.setup() replaces navigator.clipboard; switched to in-test vi.spyOn",
+      "lint: removed 2 unused imports"
+    ]
+  },
+  "architectureCorrections": [
+    {
+      "description": "zodStateCodec generic parameter changed from z.ZodType<S> to Schema extends z.ZodTypeAny with z.infer<Schema>",
+      "reason": "TypeScript inferred the schema input type (fields optional due to .default()) instead of the output type",
+      "contractSemanticsUnchanged": true,
+      "planRevision": false
+    }
+  ],
+  "finalReview": {
+    "verdict": "APPROVE-WITH-MINOR",
+    "findings": {
+      "BLOCKER": 0,
+      "MAJOR": 0,
+      "MINOR": 3
+    },
+    "minorFindings": [
+      {
+        "severity": "MINOR",
+        "finding": "e2e clipboard race: readText() can beat async writeText",
+        "disposition": "FIXED"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "restore recompute via lazy useState initializer vs frozen plan useEffect",
+        "disposition": "RECORDED"
+      },
+      {
+        "severity": "MINOR",
+        "finding": "key={search} remount lacks a direct SPA-navigation test",
+        "disposition": "RECORDED"
+      }
+    ]
+  },
+  "humanIntervention": 0,
+  "wallClockMinutes": 37,
+  "wallClockDetail": "spec freeze 05:38 JST -> final validate:full pass 06:15 JST (architects 05:38-05:48, reviewer 05:48-05:52, implementation 05:54-06:05, validation/final review 06:05-06:15)"
+}

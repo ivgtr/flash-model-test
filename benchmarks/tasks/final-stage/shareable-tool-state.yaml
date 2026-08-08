@@ -1,0 +1,32 @@
+id: shareable-tool-state
+difficulty: hard
+
+description: >
+  各 Tool の現在の入力状態を URL へ保存し、その URL を開くと同じ状態を復元できる
+  仕組み（Shareable Tool State）を導入する。横断的アーキテクチャ変更の検証が目的。
+  新規 Tool 追加は行わない。
+
+goals:
+  - 'Tool で値を入力 → Share → URL をコピー → 別タブで URL を開く → 同じ Tool・同じ入力状態が復元される'
+  - '対象 5 Tool: json-formatter / base64-codec / unix-timestamp / color-converter / regex-tester'
+  - '将来 100〜200 Tool へ展開可能な構造を意識する（過剰な抽象化は禁止）'
+
+constraints:
+  - '新規 npm dependency 禁止'
+  - 'React 内部 state そのものの永続化・DOM 状態の保存・巨大万能 JSON object・any・Tool 名による巨大 switch・app 側での全 Tool schema 手書き管理 を避ける'
+  - 'Tool 固有 state の責務と URL serialization の共通責務を分離する'
+  - 'URL が壊れている・古い・不正な state を含む場合はクラッシュせず安全に通常状態へ戻す'
+  - 'URL だけで Tool を特定できる / state を URL へ保存できる / reload 後に復元できる / 別タブでも復元できる / malformed state でクラッシュしない / state 無し URL は従来どおり動作する / URL が必要以上に更新され続けない'
+  - 'Share 操作は既存 UI に自然に統合する'
+  - '既存機能・既存テストを壊さない。無関係な Tool を大量に書き換えない'
+  - 'GitHub Actions 追加・テスト削除・弱体化・any / @ts-ignore での問題回避・不要な後方互換レイヤー は禁止'
+
+validation:
+  - 'pnpm validate:full で全 suite（既存 386 tests を含む）を通す'
+
+process:
+  - '3 つの独立 Architect（A/B/C）が repository を調査し案を提案（コード変更なし）'
+  - '独立 Reviewer が A/B/C から 1 案を選定（原則合成しない）'
+  - '選定後、実装計画を固定。計画の明確な欠陥が判明した場合のみ PLAN_REVISION として理由を記録'
+  - '実装は選ばれた設計に従う。必要なら複数 Worker へ分担可'
+  - '実装完了後、独立 Reviewer による最終 Code Review'

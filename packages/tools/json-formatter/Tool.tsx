@@ -1,29 +1,24 @@
 import { useState } from 'react'
-import { ActionArea, Button, CopyButton, Panel, Status } from '@tool-forge/ui'
-import {
-  DEFAULT_INDENT,
-  INDENT_OPTIONS,
-  formatJson,
-  parseIndent,
-  type IndentOption,
-  type JsonFormatResult,
-} from './logic'
+import { ActionArea, Button, CopyButton, Panel, Status, useToolUrlState } from '@tool-forge/ui'
+import { INDENT_OPTIONS, formatJson, parseIndent, type JsonFormatResult } from './logic'
+import { jsonFormatterStateCodec } from './state'
 import styles from './Tool.module.css'
 
 export function JsonFormatterTool() {
-  const [input, setInput] = useState('')
-  const [indent, setIndent] = useState<IndentOption>(DEFAULT_INDENT)
-  const [result, setResult] = useState<JsonFormatResult | null>(null)
+  const { state, setState, shareUrl, restored } = useToolUrlState(jsonFormatterStateCodec)
+  const [result, setResult] = useState<JsonFormatResult | null>(() =>
+    restored && state.input.trim() !== '' ? formatJson(state.input, state.indent) : null,
+  )
 
   const handleIndentChange = (value: string) => {
     const parsed = parseIndent(value)
     if (parsed !== null) {
-      setIndent(parsed)
+      setState((prev) => ({ ...prev, indent: parsed }))
     }
   }
 
   const handleClear = () => {
-    setInput('')
+    setState((prev) => ({ ...prev, input: '' }))
     setResult(null)
   }
 
@@ -33,8 +28,8 @@ export function JsonFormatterTool() {
         <textarea
           className="field"
           aria-label="JSON input"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
+          value={state.input}
+          onChange={(event) => setState((prev) => ({ ...prev, input: event.target.value }))}
           placeholder='{"hello": "world"}'
           rows={10}
           spellCheck={false}
@@ -43,7 +38,7 @@ export function JsonFormatterTool() {
           <span>Indent</span>
           <select
             className="field"
-            value={indent}
+            value={state.indent}
             onChange={(event) => handleIndentChange(event.target.value)}
           >
             {INDENT_OPTIONS.map((option) => (
@@ -56,14 +51,15 @@ export function JsonFormatterTool() {
       </Panel>
 
       <ActionArea>
-        <Button onClick={() => setResult(formatJson(input, indent))}>Format</Button>
+        <Button onClick={() => setResult(formatJson(state.input, state.indent))}>Format</Button>
         <Button
           variant="secondary"
           onClick={handleClear}
-          disabled={input === '' && result === null}
+          disabled={state.input === '' && result === null}
         >
           Clear
         </Button>
+        <CopyButton value={shareUrl} label="Share" />
       </ActionArea>
 
       <Panel title="Output" actions={result?.ok ? <CopyButton value={result.output} /> : undefined}>

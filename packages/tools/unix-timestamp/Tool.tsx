@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ActionArea, Button, CopyButton, Panel, Status } from '@tool-forge/ui'
+import { ActionArea, Button, CopyButton, Panel, Status, useToolUrlState } from '@tool-forge/ui'
 import { dateToTimestamp, parseTimestamp, type TimestampInfo, type TimestampResult } from './logic'
+import { unixTimestampStateCodec } from './state'
 import styles from './Tool.module.css'
 
 interface TimestampResultViewProps {
@@ -72,10 +73,13 @@ function ConversionSection({
 }
 
 export function UnixTimestampTool() {
-  const [timestampInput, setTimestampInput] = useState('')
-  const [dateInput, setDateInput] = useState('')
-  const [tsResult, setTsResult] = useState<TimestampResult | null>(null)
-  const [dateResult, setDateResult] = useState<TimestampResult | null>(null)
+  const { state, setState, shareUrl, restored } = useToolUrlState(unixTimestampStateCodec)
+  const [tsResult, setTsResult] = useState<TimestampResult | null>(() =>
+    restored && state.timestamp !== '' ? parseTimestamp(state.timestamp) : null,
+  )
+  const [dateResult, setDateResult] = useState<TimestampResult | null>(() =>
+    restored && state.date !== '' ? dateToTimestamp(state.date) : null,
+  )
 
   return (
     <div className={styles.layout}>
@@ -85,9 +89,9 @@ export function UnixTimestampTool() {
         placeholder="1700000000 or 1700000000000"
         inputType="text"
         convertLabel="Convert"
-        inputValue={timestampInput}
-        onInputChange={setTimestampInput}
-        onConvert={() => setTsResult(parseTimestamp(timestampInput))}
+        inputValue={state.timestamp}
+        onInputChange={(value) => setState((prev) => ({ ...prev, timestamp: value }))}
+        onConvert={() => setTsResult(parseTimestamp(state.timestamp))}
         result={tsResult}
       />
 
@@ -97,11 +101,15 @@ export function UnixTimestampTool() {
         placeholder=""
         inputType="datetime-local"
         convertLabel="Convert"
-        inputValue={dateInput}
-        onInputChange={setDateInput}
-        onConvert={() => setDateResult(dateToTimestamp(dateInput))}
+        inputValue={state.date}
+        onInputChange={(value) => setState((prev) => ({ ...prev, date: value }))}
+        onConvert={() => setDateResult(dateToTimestamp(state.date))}
         result={dateResult}
       />
+
+      <ActionArea>
+        <CopyButton value={shareUrl} label="Share" />
+      </ActionArea>
     </div>
   )
 }

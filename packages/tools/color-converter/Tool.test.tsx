@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
+import { serializeToolState } from '@tool-forge/core'
 import { ColorConverterTool } from './Tool'
+import { colorConverterStateCodec } from './state'
 
 function setColorInput(value: string) {
   fireEvent.change(screen.getByLabelText('Color input'), { target: { value } })
@@ -55,5 +57,37 @@ describe('ColorConverterTool', () => {
     await user.click(screen.getByRole('button', { name: 'Clear' }))
     expect(input).toHaveValue('')
     expect(screen.getByText(/Converted color will appear here/)).toBeInTheDocument()
+  })
+
+  it('restores input state from a shared URL and recomputes the result', () => {
+    const state = { input: '#00ff00' }
+    const serialized = serializeToolState(state, colorConverterStateCodec)
+    expect(serialized).not.toBeNull()
+    window.history.replaceState({}, '', `/tools/color-converter?s=${serialized!}`)
+    render(<ColorConverterTool />)
+    expect(screen.getByLabelText('Color input')).toHaveValue('#00ff00')
+    const output = screen.getByTestId('color-output')
+    expect(output).toHaveTextContent('rgb(0, 255, 0)')
+    expect(output).toHaveTextContent('hsl(120, 100%, 50%)')
+  })
+
+  it('falls back to defaults for a malformed state URL', () => {
+    window.history.replaceState({}, '', '/tools/color-converter?s=1.garbage!!!')
+    render(<ColorConverterTool />)
+    expect(screen.getByLabelText('Color input')).toHaveValue('')
+    expect(screen.getByText(/Converted color will appear here/)).toBeInTheDocument()
+  })
+
+  it('enables Share once state differs from defaults', async () => {
+    window.history.replaceState({}, '', '/tools/color-converter')
+    await setup()
+    const shareButton = screen.getByRole('button', { name: 'Share' })
+    expect(shareButton).toBeDisabled()
+    setColorInput('#fff')
+    expect(shareButton).toBeEnabled()
+  })
+
+  afterEach(() => {
+    window.history.replaceState({}, '', '/')
   })
 })

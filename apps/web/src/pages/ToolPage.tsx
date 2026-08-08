@@ -1,5 +1,5 @@
 import { Suspense, lazy, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { ToolHeader, ToolShell } from '@tool-forge/ui'
 import { ErrorBoundary } from '../app/ErrorBoundary'
 import { loadToolModule, toolRegistry } from '../app/tool-loader'
@@ -7,6 +7,7 @@ import { NotFoundPage } from './NotFoundPage'
 
 export function ToolPage() {
   const { toolId } = useParams()
+  const { search } = useLocation()
   const definition = toolId === undefined ? undefined : toolRegistry.get(toolId)
   const Tool = useMemo(() => {
     if (toolId === undefined) {
@@ -31,7 +32,7 @@ export function ToolPage() {
       />
       <ErrorBoundary>
         <Suspense fallback={<p className="muted">Loading tool…</p>}>
-          <Tool />
+          <Tool key={search} />
         </Suspense>
       </ErrorBoundary>
     </ToolShell>

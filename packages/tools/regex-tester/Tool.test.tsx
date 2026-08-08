@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { serializeToolState } from '@tool-forge/core'
 import { RegexTesterTool } from './Tool'
+import { regexTesterStateCodec, type RegexTesterState } from './state'
 
 function setInputs(pattern: string, text: string) {
   fireEvent.change(screen.getByLabelText('Pattern'), { target: { value: pattern } })
@@ -74,5 +76,44 @@ describe('RegexTesterTool', () => {
     expect(screen.getByLabelText('Pattern')).toHaveValue('')
     expect(screen.getByLabelText('Test string')).toHaveValue('')
     expect(screen.getByText(/Test results will appear here/)).toBeInTheDocument()
+  })
+
+  it('restores pattern, flags and text from a shared URL and recomputes the result', () => {
+    const state: RegexTesterState = { pattern: '\\d+', flags: ['g', 'i'], text: 'abc 123 x 456' }
+    const serialized = serializeToolState(state, regexTesterStateCodec)
+    expect(serialized).not.toBeNull()
+    window.history.replaceState({}, '', `/tools/regex-tester?s=${serialized!}`)
+    render(<RegexTesterTool />)
+    expect(screen.getByLabelText('Pattern')).toHaveValue('\\d+')
+    expect(screen.getByLabelText('Test string')).toHaveValue('abc 123 x 456')
+    expect(screen.getByRole('checkbox', { name: 'g' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'i' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'm' })).not.toBeChecked()
+    expect(screen.getByTestId('match-count')).toHaveTextContent('2 matches')
+  })
+
+  it('falls back to defaults for a malformed state URL', () => {
+    window.history.replaceState({}, '', '/tools/regex-tester?s=1.garbage!!!')
+    render(<RegexTesterTool />)
+    expect(screen.getByLabelText('Pattern')).toHaveValue('')
+    expect(screen.getByLabelText('Test string')).toHaveValue('')
+    expect(screen.getByRole('checkbox', { name: 'g' })).not.toBeChecked()
+    expect(screen.getByText(/Test results will appear here/)).toBeInTheDocument()
+  })
+
+  it('copies a share URL containing the serialized state', async () => {
+    window.history.replaceState({}, '', '/tools/regex-tester')
+    const { user } = await setup()
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined)
+    const shareButton = screen.getByRole('button', { name: 'Share' })
+    expect(shareButton).toBeDisabled()
+    setInputs('\\d+', 'abc')
+    expect(shareButton).toBeEnabled()
+    await user.click(shareButton)
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('/tools/regex-tester?s=1.'))
+  })
+
+  afterEach(() => {
+    window.history.replaceState({}, '', '/')
   })
 })

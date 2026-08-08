@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ActionArea, Button, Panel, Status } from '@tool-forge/ui'
+import { ActionArea, Button, CopyButton, Panel, Status, useToolUrlState } from '@tool-forge/ui'
 import {
   FLAG_OPTIONS,
   testRegex,
@@ -7,6 +7,7 @@ import {
   type RegexFlag,
   type RegexTestResult,
 } from './logic'
+import { regexTesterStateCodec } from './state'
 import styles from './Tool.module.css'
 
 function matchCountLabel(count: number, truncated: boolean): string {
@@ -79,23 +80,26 @@ function Results({ result }: { result: Extract<RegexTestResult, { ok: true }> })
 }
 
 export function RegexTesterTool() {
-  const [pattern, setPattern] = useState('')
-  const [flags, setFlags] = useState<RegexFlag[]>([])
-  const [text, setText] = useState('')
-  const [result, setResult] = useState<RegexTestResult | null>(null)
+  const { state, setState, shareUrl, restored } = useToolUrlState(regexTesterStateCodec)
+  const [result, setResult] = useState<RegexTestResult | null>(() =>
+    restored && state.pattern !== '' ? testRegex(state.pattern, state.flags, state.text) : null,
+  )
 
   const toggleFlag = (flag: RegexFlag) => {
-    setFlags((prev) => (prev.includes(flag) ? prev.filter((f) => f !== flag) : [...prev, flag]))
+    setState((prev) => ({
+      ...prev,
+      flags: prev.flags.includes(flag)
+        ? prev.flags.filter((f) => f !== flag)
+        : [...prev.flags, flag],
+    }))
   }
 
   const handleTest = () => {
-    setResult(testRegex(pattern, flags, text))
+    setResult(testRegex(state.pattern, state.flags, state.text))
   }
 
   const handleClear = () => {
-    setPattern('')
-    setFlags([])
-    setText('')
+    setState({ pattern: '', flags: [], text: '' })
     setResult(null)
   }
 
@@ -107,8 +111,8 @@ export function RegexTesterTool() {
           <input
             className="field"
             aria-label="Pattern"
-            value={pattern}
-            onChange={(event) => setPattern(event.target.value)}
+            value={state.pattern}
+            onChange={(event) => setState((prev) => ({ ...prev, pattern: event.target.value }))}
             placeholder="\d+"
             spellCheck={false}
           />
@@ -119,7 +123,7 @@ export function RegexTesterTool() {
             <label key={flag} className={styles.flag}>
               <input
                 type="checkbox"
-                checked={flags.includes(flag)}
+                checked={state.flags.includes(flag)}
                 onChange={() => toggleFlag(flag)}
               />
               {flag}
@@ -131,8 +135,8 @@ export function RegexTesterTool() {
           <textarea
             className="field"
             aria-label="Test string"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
+            value={state.text}
+            onChange={(event) => setState((prev) => ({ ...prev, text: event.target.value }))}
             rows={6}
             spellCheck={false}
           />
@@ -144,10 +148,13 @@ export function RegexTesterTool() {
         <Button
           variant="secondary"
           onClick={handleClear}
-          disabled={pattern === '' && flags.length === 0 && text === '' && result === null}
+          disabled={
+            state.pattern === '' && state.flags.length === 0 && state.text === '' && result === null
+          }
         >
           Clear
         </Button>
+        <CopyButton value={shareUrl} label="Share" />
       </ActionArea>
 
       <Panel title="Results">

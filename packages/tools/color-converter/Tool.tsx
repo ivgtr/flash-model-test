@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { ActionArea, Button, CopyButton, Panel, Status } from '@tool-forge/ui'
+import { ActionArea, Button, CopyButton, Panel, Status, useToolUrlState } from '@tool-forge/ui'
 import { convertColor, type ColorConvertResult } from './logic'
+import { colorConverterStateCodec } from './state'
 import styles from './Tool.module.css'
 
 export function ColorConverterTool() {
-  const [input, setInput] = useState('')
-  const [result, setResult] = useState<ColorConvertResult | null>(null)
+  const { state, setState, shareUrl, restored } = useToolUrlState(colorConverterStateCodec)
+  const [result, setResult] = useState<ColorConvertResult | null>(() =>
+    restored && state.input.trim() !== '' ? convertColor(state.input) : null,
+  )
 
   const handleClear = () => {
-    setInput('')
+    setState((prev) => ({ ...prev, input: '' }))
     setResult(null)
   }
 
@@ -18,22 +21,23 @@ export function ColorConverterTool() {
         <input
           className="field"
           aria-label="Color input"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
+          value={state.input}
+          onChange={(event) => setState((prev) => ({ ...prev, input: event.target.value }))}
           placeholder="#ff0000, rgb(255, 0, 0), hsl(0, 100%, 50%)"
           spellCheck={false}
         />
       </Panel>
 
       <ActionArea>
-        <Button onClick={() => setResult(convertColor(input))}>Convert</Button>
+        <Button onClick={() => setResult(convertColor(state.input))}>Convert</Button>
         <Button
           variant="secondary"
           onClick={handleClear}
-          disabled={input === '' && result === null}
+          disabled={state.input === '' && result === null}
         >
           Clear
         </Button>
+        <CopyButton value={shareUrl} label="Share" />
       </ActionArea>
 
       <Panel title="Output">
