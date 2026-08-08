@@ -31,6 +31,20 @@ pnpm build
 pnpm e2e          # Playwright (build + preview + run)
 ```
 
+## Quality Gates
+
+GitHub CI は使用しない。コミット時に husky の pre-commit フックがローカルで以下を実行する。
+
+```text
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
+```
+
+失敗した場合コミットは中断される。`pnpm build` と `pnpm e2e` はフック対象外
+(必要なときに手動実行する)。フックを無効化してコミットしないこと。
+
 ## Repository structure
 
 ```text
