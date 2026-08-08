@@ -1,0 +1,32 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "task": "query-string-parser",
+  "stage": 1,
+  "startedAt": "2026-08-09T04:40:26+09:00",
+  "completedAt": "2026-08-09T04:44:07+09:00",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "filesChanged": 7,
+  "testsAdded": 18,
+  "format": true,
+  "lint": true,
+  "typecheck": true,
+  "tests": true,
+  "build": true,
+  "e2e": true,
+  "agentReportedDone": true,
+  "verified": true,
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "notes": [
+    "Implemented packages/tools/query-string-parser/ with the standard 6-file structure plus Tool.module.css (7 files, all within allowed paths).",
+    "parse strips one leading ?, splits on &, splits each segment on the first =, strictly percent-decodes key and value (malformed % is a visible error; URLSearchParams was not usable because it silently replaces malformed sequences with U+FFFD instead of erroring). serialize always emits key=value joined by &, preserving order and duplicates; lone surrogates are caught and reported.",
+    "Copy in parse mode copies the canonical re-serialized query string; serialize mode copies the serialized output.",
+    "Two fixes during the session were in my own tests/UI code, not the domain logic: (1) round-trip test used a bare 'd' segment which cannot round-trip identically since parse collapses 'd' and 'd=' to ['d',''] while serialize always writes key=value; (2) the Mode select lacked an aria-label for getByLabelText.",
+    "Fast Validation passed (126 tests); external Full Validation (build + 4 e2e) passed.",
+    "Token usage and API cost are not accessible to the agent; recorded as null."
+  ]
+}
