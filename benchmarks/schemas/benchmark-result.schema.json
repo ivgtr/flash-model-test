@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tool-forge.local/schemas/benchmark-result.schema.json",
+  "title": "Tool Forge Benchmark Result",
+  "description": "Common format for recording Stage 1+ task results. Values that cannot be obtained must be null, never estimated.",
+  "type": "object",
+  "required": [
+    "model",
+    "task",
+    "stage",
+    "startedAt",
+    "completedAt",
+    "agentResult",
+    "attempts",
+    "filesChanged",
+    "testsAdded",
+    "format",
+    "lint",
+    "typecheck",
+    "tests",
+    "build",
+    "e2e",
+    "agentReportedDone",
+    "verified",
+    "humanIntervention",
+    "inputTokens",
+    "outputTokens",
+    "costUsd",
+    "metricsSource"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "model": { "type": "string" },
+    "task": { "type": "string" },
+    "stage": { "type": "integer", "minimum": 1 },
+
+    "startedAt": { "type": "string" },
+    "completedAt": { "type": "string" },
+
+    "agentResult": {
+      "type": "string",
+      "enum": ["DONE", "RETRY_REQUIRED", "ESCALATE", "FAILED"]
+    },
+    "attempts": { "type": "integer", "minimum": 1 },
+
+    "filesChanged": { "type": "integer", "minimum": 0 },
+    "testsAdded": { "type": "integer", "minimum": 0 },
+
+    "format": { "type": ["boolean", "null"] },
+    "lint": { "type": ["boolean", "null"] },
+    "typecheck": { "type": ["boolean", "null"] },
+    "tests": { "type": ["boolean", "null"] },
+    "build": { "type": ["boolean", "null"] },
+    "e2e": { "type": ["boolean", "null"] },
+
+    "agentReportedDone": { "type": "boolean" },
+    "verified": { "type": "boolean" },
+
+    "humanIntervention": { "type": "boolean" },
+
+    "inputTokens": { "type": ["integer", "null"], "minimum": 0 },
+    "outputTokens": { "type": ["integer", "null"], "minimum": 0 },
+    "costUsd": { "type": ["number", "null"], "minimum": 0 },
+    "metricsSource": { "type": ["string", "null"] },
+
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

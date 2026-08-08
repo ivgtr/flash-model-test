@@ -111,31 +111,24 @@ importers:
 
   packages/core:
     dependencies:
-      react:
-        specifier: ^19.0.0
-        version: 19.2.8
       zod:
         specifier: ^3.24.0
         version: 3.25.76
-    devDependencies:
-      '@types/react':
-        specifier: ^19.2.18
-        version: 19.2.18
 
-  packages/tools/json-formatter:
+  packages/tools:
     dependencies:
       '@tool-forge/core':
         specifier: workspace:*
-        version: link:../../core
+        version: link:../core
       '@tool-forge/ui':
         specifier: workspace:*
-        version: link:../../ui
+        version: link:../ui
       react:
         specifier: ^19.0.0
         version: 19.2.8
     devDependencies:
       '@types/react':
-        specifier: ^19.2.18
+        specifier: ^19.0.0
         version: 19.2.18
 
   packages/ui:

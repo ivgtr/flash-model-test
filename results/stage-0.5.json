@@ -1,0 +1,39 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "task": "stage-0.5-parallel-development-hardening",
+  "stage": 0.5,
+  "startedAt": "2026-08-09T03:57:00+09:00",
+  "completedAt": "2026-08-09T04:06:11+09:00",
+  "result": "DONE",
+  "attempts": 1,
+
+  "filesChanged": 18,
+  "testsAdded": 0,
+
+  "format": true,
+  "lint": true,
+  "typecheck": true,
+  "tests": true,
+  "build": true,
+  "e2e": true,
+
+  "agentReportedDone": true,
+  "verified": true,
+  "humanIntervention": false,
+
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+
+  "notes": [
+    "Reproduced: adding a new workspace-package tool (zero external deps) changes pnpm-lock.yaml (+16 lines) and breaks pnpm install --frozen-lockfile. Converted packages/tools to a single workspace package so a normal tool add touches only packages/tools/<tool-id>/**.",
+    "Reproduced and fixed: registry generator treated packages/tools/node_modules as a tool directory and failed. Generator now skips node_modules and dot-directories.",
+    "Removed unused ToolModule interface and all React imports/dependencies from packages/core; core now depends only on zod.",
+    "Parallel extension test: added parallel-test-a/b/c as plain directories; registry auto-registered 1 -> 4 tools; zero shared tracked files changed; removed them and re-ran full validation (1 tool, 52 tests, 4 e2e).",
+    "Added pnpm validate (Fast) and pnpm validate:full (Full) root scripts; husky pre-commit remains the Fast gate (format/lint/typecheck/test).",
+    "Created benchmarks/schemas/benchmark-result.schema.json and 5 Stage 1 task specs under benchmarks/tasks/stage-1/.",
+    "Token usage and API cost are not accessible to the agent; recorded as null.",
+    "Temporary tools were removed before commit; generated registry (apps/web/src/generated/) is gitignored and not committed."
+  ]
+}

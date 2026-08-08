@@ -1,0 +1,67 @@
+id: query-string-parser
+difficulty: medium
+
+description: >
+  URL の query string（例: ?a=1&b=2）を解析・整形するツール。parse（文字列 →
+  キーと値の一覧）と serialize（一覧 → 文字列）をブラウザ上で行う。
+
+requirements:
+  - 'parse: query string をキーと値のペアのリストへ分解する'
+  - 'serialize: キーと値のペアのリストを query string へ組み立てる'
+  - 'parse の結果は順序付きのペア一覧として扱う（順序と重複を保持する）'
+  - 'serialize は同じ構造（順序・重複）を入力として受け付ける'
+  - 'percent-encoding された値は parse 時にデコードし、serialize 時に再エンコードする'
+  - 'malformed encoding はユーザーに見えるエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+contract (exact expectations):
+  - 'parse: 先頭の ? は無視する。& で区切り、各要素を最初の = で key と value に分ける'
+  - 'a=1&b=2 → [[a, 1], [b, 2]]。?a=1&a=2 → [[a, 1], [a, 2]]（重複 key は保持）'
+  - 'a（= なし）→ [[a, ""]]、a= → [[a, ""]]（empty value は空文字列）'
+  - '空文字列の parse は空リストを返す'
+  - 'serialize は先頭 ? なしで key=value を & で連結する'
+  - '各 key/value は serialize 時に percent-encode し、parse 時に percent-decode する'
+  - 'parse の入力が空文字列の場合は空リストを返す（エラーにしない）'
+  - 'malformed percent encoding（例: %zz）はエラーとして報告する'
+
+edge cases:
+  - 'duplicate key: 保持し、順序を維持する'
+  - 'empty value: a= と a の両方が空文字列 value になる'
+  - 'encoded characters: 日本語・記号の percent-encoding round-trip'
+  - 'malformed encoding: % の後に 2 桁の 16 進数が続かない場合はエラー'
+  - 'ordering: parse と serialize の両方で入力順序を保持する'
+  - '= が複数ある場合は最初の = で分割し、残りは value に含める（例: a=b=c → [[a, "b=c"]]）'
+
+required tests:
+  - logic.test.ts:
+      - '基本 parse（順序・複数 key）'
+      - 'duplicate key の保持'
+      - 'empty value（a= / a）'
+      - 'serialize round-trip（parse → serialize で入力と一致すること）'
+      - 'encoded characters（日本語等）の round-trip'
+      - 'malformed encoding のエラー'
+      - 'a=b=c の分割規則'
+      - 'empty input が空リストを返すこと'
+  - Tool.test.tsx:
+      - 'ユーザーが入力して parse 結果が表示されること'
+      - 'エラー時にユーザーに見えるメッセージが出ること'
+
+allowed paths:
+  - packages/tools/query-string-parser/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/**
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 既存 dependency と Web Platform API（URLSearchParams 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

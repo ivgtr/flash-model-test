@@ -22,6 +22,7 @@ const ID_LITERAL = /^\s*id:\s*['"]([a-z0-9-]+)['"]/m
 
 const entries = readdirSync(toolsDir, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
+  .filter((entry) => !entry.name.startsWith('.') && entry.name !== 'node_modules')
   .map((entry) => entry.name)
   .sort()
 

@@ -1,10 +1,4 @@
-import type { ComponentType } from 'react'
 import { parseToolDefinition, type ToolCategory, type ToolDefinition } from './tool-definition'
-
-export interface ToolModule {
-  definition: ToolDefinition
-  Tool: ComponentType
-}
 
 export interface CategoryGroup {
   category: ToolCategory

@@ -1,5 +1,5 @@
 {
-  "name": "@tool-forge/tool-json-formatter",
+  "name": "@tool-forge/tools",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,6 +12,6 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.18"
+    "@types/react": "^19.0.0"
   }
 }

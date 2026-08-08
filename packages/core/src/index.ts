@@ -13,6 +13,5 @@ export {
   createToolRegistry,
   groupByCategory,
   type CategoryGroup,
-  type ToolModule,
 } from './registry'
 export { StorageCorruptionError, createKeyValueStorage, type KeyValueStorage } from './storage'

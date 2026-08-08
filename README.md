@@ -29,31 +29,37 @@ pnpm test         # vitest run (unit + component)
 pnpm test:watch
 pnpm build
 pnpm e2e          # Playwright (build + preview + run)
+pnpm validate     # Fast Validation: format:check + lint + typecheck + test
+pnpm validate:full  # Full Validation: validate + build + e2e
 ```
 
 ## Quality Gates
 
-GitHub CI は使用しない。コミット時に husky の pre-commit フックがローカルで以下を実行する。
+GitHub CI は使用しない。品質検証はローカルで完結させる。
 
-```text
-pnpm format:check
-pnpm lint
-pnpm typecheck
-pnpm test
-```
+- **Fast Validation** (`pnpm validate`): コミット前に実行する。
+  `format:check` + `lint` + `typecheck` + `test`。husky の pre-commit フックが
+  コミット時に自動実行する (失敗時はコミット中断)。フックを無効化してコミットしないこと。
+- **Full Validation** (`pnpm validate:full`): Task 完了時・Stage 完了時・複数 Agent 成果物の
+  統合後に必ず実行する。Fast Validation に `build` + `e2e` を加えたもの。
 
-失敗した場合コミットは中断される。`pnpm build` と `pnpm e2e` はフック対象外
-(必要なときに手動実行する)。フックを無効化してコミットしないこと。
+Agent の自己申告 (`DONE` 等) は成功判定に使用しない。Task 完了後は必ず外側から
+Full Validation を実行し、その結果で最終状態を判定する。
 
 ## Repository structure
 
 ```text
 apps/web/                     # Vite application (routing, pages, tool loading)
-packages/core/                # Tool contract, registry, storage (framework-agnostic)
+packages/core/                # Tool contract, registry, storage (framework-agnostic, no React)
 packages/ui/                  # Shared UI primitives
-packages/tools/<tool-id>/     # One directory per tool
+packages/tools/               # One workspace package containing all tool implementations
+  <tool-id>/                  # One directory per tool (NOT a workspace package)
 results/                      # Benchmark records
 ```
+
+`packages/tools` は単一の workspace package である。Tool 1 つにつき 1 つ workspace package を
+作らない。Tool 追加で `pnpm-lock.yaml` や `pnpm-workspace.yaml` を変更する必要はなく、
+`packages/tools/<tool-id>/**` の追加だけで完結する。
 
 ## Tool Contract
 
@@ -85,10 +91,11 @@ packages/tools/<id>/
 ├── logic.test.ts    # domain logic の単体テスト
 ├── Tool.tsx         # UI本体。ページ側がレンダリングするヘッダ以外の body を担う
 ├── Tool.test.tsx    # ユーザーに見える契約のコンポーネントテスト
-├── index.ts         # definition と Tool を再export
-├── package.json     # 依存: @tool-forge/core, @tool-forge/ui, react
-└── tsconfig.json
+└── index.ts         # definition と Tool を再export
 ```
+
+`package.json` / `tsconfig.json` は Tool ごとに持たない。依存は `packages/tools`
+パッケージ単位で共有される。
 
 `execute()` のような共通変換関数を契約に含めない。sync / async / interactive /
 preview 型など UI 性質が Tool ごとに異なるため、React コンポーネント自体が
@@ -100,9 +107,15 @@ preview 型など UI 性質が Tool ごとに異なるため、React コンポ�
 
 1. `packages/tools/<id>/` を新規作成し、上記のファイル構成に従う
 2. `definition.ts` の `id` をディレクトリ名と一致させる
-3. 新しい npm 依存が必要なら自身の `package.json` に追加し `pnpm install`
-4. ルートで `pnpm lint && pnpm typecheck && pnpm test && pnpm build`
+3. ルートで `pnpm validate` を実行し、全ゲート通過を確認する
    (registry はゲート実行時に自動生成される。手動生成は `pnpm tools:gen`)
+
+### Dependency Policy
+
+- Tool 実装は repository に既に存在する dependency と Web Platform API だけで実装する
+- 新しい npm dependency を勝手に追加しない
+- 追加が必要になった場合は実装を止め `ESCALATE: DEPENDENCY_REQUIRED` を返す
+  (共有 dependency 追加は並列 Tool 実装とは分離して処理する)
 
 ## Shared UI (packages/ui)
 
