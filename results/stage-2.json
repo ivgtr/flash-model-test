@@ -1,0 +1,82 @@
+{
+  "stage": 2,
+  "model": "opencode-go/deepseek-v4-flash",
+  "tasks": 12,
+  "tasksList": [
+    "html-escape",
+    "case-converter",
+    "slug-generator",
+    "uuid-generator",
+    "random-string-generator",
+    "number-base-converter",
+    "byte-size-converter",
+    "color-converter",
+    "date-difference",
+    "hash-generator",
+    "regex-tester",
+    "csv-to-json"
+  ],
+  "verified": 12,
+  "passAt1": 12,
+  "retries": 0,
+  "escalations": 0,
+  "failures": 0,
+  "scopeViolations": 0,
+  "integrationConflicts": 0,
+  "integrationConflictDetails": {
+    "mergeConflicts": 0,
+    "sharedFileConflicts": 0,
+    "registryProblems": 0,
+    "typeCollisions": 0,
+    "testInterference": 0
+  },
+  "internalSelfCorrections": 29,
+  "selfCorrectionsPerTask": {
+    "html-escape": 1,
+    "case-converter": 2,
+    "slug-generator": 2,
+    "uuid-generator": 3,
+    "random-string-generator": 2,
+    "number-base-converter": 1,
+    "byte-size-converter": 2,
+    "color-converter": 6,
+    "date-difference": 2,
+    "hash-generator": 1,
+    "regex-tester": 4,
+    "csv-to-json": 3
+  },
+  "humanInterventions": 0,
+  "timeline": {
+    "stageStartedAt": "2026-08-09T05:12:41+09:00",
+    "workersStartedAt": "2026-08-09T05:16:16+09:00",
+    "lastWorkerCompletedAt": "2026-08-09T05:25:33+09:00",
+    "integrationStartedAt": "2026-08-09T05:26:02+09:00",
+    "integrationCompletedAt": "2026-08-09T05:27:07+09:00",
+    "stageCompletedAt": "2026-08-09T05:27:07+09:00"
+  },
+  "parallelWorkerWallTimeSeconds": 557,
+  "integrationTimeSeconds": 65,
+  "totalStageTimeSeconds": 866,
+  "stage1Comparison": {
+    "stage1Tasks": 5,
+    "stage1ImplementationMinutes": 11,
+    "stage1TotalStageMinutes": 16.5,
+    "stage1SecondsPerTask": 132,
+    "stage2SecondsPerTaskWall": 46.4,
+    "wallTimeReductionPerTask": 2.85,
+    "note": "Stage 2 は 12 Task を並列実行し、Worker wall time 9m17s で Stage 1 の 5 Task 逐次（実装合計約 11 分）を上回るスループット。12 Task の実装が 5 Task 逐次の実装時間より短い"
+  },
+  "finalFullValidation": {
+    "format": true,
+    "lint": true,
+    "typecheck": true,
+    "tests": true,
+    "testsCount": 386,
+    "testFiles": 44,
+    "build": true,
+    "e2e": true,
+    "e2eCount": 4,
+    "totalTools": 18
+  },
+  "verdict": "READY"
+}

@@ -1,0 +1,32 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "case-converter",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "031d440",
+  "filesChanged": 7,
+  "testsAdded": 18,
+  "validationRuns": 4,
+  "failedValidationRuns": 2,
+  "selfCorrections": 2,
+  "selfCorrectionDetails": [
+    "format:check 失敗 → logic.ts / Tool.tsx を prettier --write で整形",
+    "typecheck 失敗（noUncheckedIndexedAccess で input[i] の undefined 判定不足）→ splitWords 内に undefined ガードを追加"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:20:32+09:00",
+  "notes": [
+    "word 分割は「セパレータ + 小文字→大文字遷移 + 大文字連続末尾」規則。数字は単語境界にしない仕様をテストで固定",
+    "実装は packages/tools/case-converter/** のみ。validate（手動 3 回 + pre-commit フック 1 回）と build を通過"
+  ]
+}

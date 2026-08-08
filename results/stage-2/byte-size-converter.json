@@ -1,0 +1,32 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "byte-size-converter",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "6b9285a",
+  "filesChanged": 7,
+  "testsAdded": 20,
+  "validationRuns": 2,
+  "failedValidationRuns": 1,
+  "selfCorrections": 2,
+  "selfCorrectionDetails": [
+    "logic.test.ts の行長違反を prettier --write で修正（format:check ゲート）",
+    "ロジックバグ修正: 2 進系の換算係数を配列インデックスで計算していたため KiB=1 / TiB=2^30 になっていた。index+1 に修正（logic.ts）"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:22:12+09:00",
+  "notes": [
+    "9 単位（10 進 1000 倍 + 2 進 1024 倍）、小数入力は half-up 丸めで BigInt バイト数に、表示は Number(value.toPrecision(6)).toString()。B は常に整数",
+    "2^60 TiB → 2^100 バイトの BigInt 正確性をテストで検証。実装は packages/tools/byte-size-converter/** のみ"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "slug-generator",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "c046578",
+  "filesChanged": 7,
+  "testsAdded": 15,
+  "validationRuns": 3,
+  "failedValidationRuns": 2,
+  "selfCorrections": 2,
+  "selfCorrectionDetails": [
+    "Tool.tsx のフォーマット崩れを prettier --write で修正（format:check 失敗を受けて）",
+    "Tool.test.tsx の日本語のみ入力ケースの期待値を修正。空スラグ時は出力プレースホルダが残り slug-output 要素・Copy ボタンが出ないため、テストを実 UI と整合させた"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:18:45+09:00",
+  "notes": [
+    "slugify は NFD 正規化 + 結合記号（\\p{M}）除去 + 小文字化 + 非英数字のハイフン化 + 連続/前後ハイフン除去で実装",
+    "実装は packages/tools/slug-generator/** のみ。新規依存なし"
+  ]
+}

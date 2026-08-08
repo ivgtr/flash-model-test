@@ -1,0 +1,31 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "hash-generator",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "4d8d0e0",
+  "filesChanged": 7,
+  "testsAdded": 16,
+  "validationRuns": 2,
+  "failedValidationRuns": 1,
+  "selfCorrections": 1,
+  "selfCorrectionDetails": [
+    "logic.test.ts のフォーマット違反を prettier --write で修正（format:check のみ失敗、コード内容の変更なし）"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:20:09+09:00",
+  "notes": [
+    "async computeHash（crypto.subtle.digest + TextEncoder）で小文字 16 進を返す。既知ベクタ（abc / 空文字 / 日本語 / 絵文字）をテストで検証",
+    "Tool は select でアルゴリズム切替（デフォルト SHA-256）。pnpm validate 通過（142 tests / 22 files）+ build 通過。実装は packages/tools/hash-generator/** のみ"
+  ]
+}

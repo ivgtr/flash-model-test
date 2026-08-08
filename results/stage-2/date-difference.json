@@ -1,0 +1,32 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "date-difference",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "ab20d87",
+  "filesChanged": 7,
+  "testsAdded": 22,
+  "validationRuns": 3,
+  "failedValidationRuns": 2,
+  "selfCorrections": 2,
+  "selfCorrectionDetails": [
+    "logic.test.ts / Tool.tsx を prettier --write で整形（format:check ゲート）",
+    "logic.test.ts のうるう年・月末境界の期待値を誤って計算していたため修正（'2024-01-31'→'2024-02-29' は 27→29 日、'2024-02-29'→'2025-02-28' は 28→30 日。ロジック側は正しく、テスト期待値の誤りだった）"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:22:38+09:00",
+  "notes": [
+    "UTC ベース計算: datetime-local 文字列を new Date() でパースし getUTC* フィールドを抽出。暦上の差（年月日）と総時間/分/秒/日（24h 単位）の両方を返す。逆順でも絶対差として同一結果",
+    "実装は packages/tools/date-difference/** のみ。pnpm e2e / validate:full は未実行（統合後に Orchestrator が実施）"
+  ]
+}

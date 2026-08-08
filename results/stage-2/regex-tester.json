@@ -1,0 +1,35 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "regex-tester",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "35de40c",
+  "filesChanged": 7,
+  "testsAdded": 22,
+  "validationRuns": 4,
+  "failedValidationRuns": 3,
+  "selfCorrections": 4,
+  "selfCorrectionDetails": [
+    "Tool.tsx を prettier --write で整形（format:check ゲート）",
+    "logic.test.ts の result.matches[0] が noUncheckedIndexedAccess で TS2532 になるため const [match] = result.matches + オプショナルチェーンに修正（typecheck ゲート）",
+    "logic.test.ts の期待値 index を 5 → 8 に修正（'2024-01 1999-12' の 2 番目のマッチ位置の計算ミス）",
+    "Tool.test.tsx の期待値 index を 8 → 10 に修正（'abc 123 x 456' の '456' の位置の計算ミス）"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:23:43+09:00",
+  "notes": [
+    "matchAll を採用（/^/g との exec ループが無限ループになるため）。MAX_MATCHES = 1000 のキャップ + truncated フラグで巨大入力の表示肥大を防止",
+    "spec の「孤立サロゲートで u フラグエラー」は ES2024 以降の V8 では例外にならないため、\\p{Foo}（Invalid property name）で u フラグ不正パターンのエラーを検証",
+    "実装は packages/tools/regex-tester/** のみ。pre-commit フックの自動 validate も通過"
+  ]
+}

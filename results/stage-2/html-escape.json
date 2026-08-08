@@ -1,0 +1,31 @@
+{
+  "model": "opencode-go/deepseek-v4-flash",
+  "stage": 2,
+  "task": "html-escape",
+  "agentResult": "DONE",
+  "attempts": 1,
+  "passAt1": true,
+  "verified": true,
+  "scopeViolation": false,
+  "integrationConflict": false,
+  "workerCommit": "628aaf2",
+  "filesChanged": 7,
+  "testsAdded": 15,
+  "validationRuns": 3,
+  "failedValidationRuns": 1,
+  "selfCorrections": 1,
+  "selfCorrectionDetails": [
+    "pnpm validate 1 回目が format:check で失敗（Tool.tsx のプレースホルダ行が Prettier 整形に違反）。prettier --write で整形して再実行"
+  ],
+  "humanIntervention": false,
+  "inputTokens": null,
+  "outputTokens": null,
+  "costUsd": null,
+  "metricsSource": null,
+  "workersStartedAt": "2026-08-09T05:16:16+09:00",
+  "workerCommitAt": "2026-08-09T05:18:17+09:00",
+  "notes": [
+    "escape/unescape とも単一 regex パスで置換。&amp;lt; の unescape は &lt; に留まり 1 パス要件を満たす",
+    "実装は packages/tools/html-escape/** のみ（7 ファイル）。pre-commit フックも通過、build 成功"
+  ]
+}
