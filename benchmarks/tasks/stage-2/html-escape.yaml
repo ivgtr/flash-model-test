@@ -1,0 +1,51 @@
+id: html-escape
+difficulty: easy
+
+description: >
+  HTML テキストのエスケープ / アンエスケープを行うツール。& < > " ' の 5 文字を
+  HTML エンティティへ変換し、逆方向も行う。
+
+requirements:
+  - 'escape: & < > " を &amp; &lt; &gt; &quot; に、アポストロフィを &#39; に変換する'
+  - 'unescape: 上記 5 つのエンティティ（&amp; &lt; &gt; &quot; &#39;）を元の文字に戻す'
+  - '方向（escape / unescape）を切り替えられる'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+  - 'escape と unescape は単一パスで行う（&amp;lt; の unescape は &lt; になり < にならない）'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す（エラーにしない）'
+  - '& を含む入力: & が必ず先に &amp; になり、二重エスケープにならない'
+  - 'unescape で &amp;amp; は &amp; になる（1 パスのみ、再帰的にデコードしない）'
+  - 'エンティティ以外の & 列（例: &foo;）は unescape でそのまま保持する'
+  - '日本語などの非 ASCII 文字はエスケープしない（そのまま通す）'
+
+required tests:
+  - logic.test.ts:
+      - '5 文字すべての escape / unescape round-trip'
+      - '& を含む入力のエスケープ結果が期待文字列と一致すること'
+      - '空文字列の escape / unescape'
+      - '&amp;amp; が単一パスで &amp; になること'
+      - '未知のエンティティ（&foo; 等）が unescape で保持されること'
+  - Tool.test.tsx:
+      - 'ユーザーが入力して escape できること'
+      - 'direction 切り替えで unescape できること'
+
+allowed paths:
+  - packages/tools/html-escape/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/**
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 既存 dependency と Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

@@ -1,0 +1,55 @@
+id: case-converter
+difficulty: medium
+
+description: >
+  テキストの表記形式を変換するツール。camelCase / PascalCase / snake_case /
+  kebab-case / SCREAMING_SNAKE_CASE / Title Case の 6 形式へ変換する。
+
+requirements:
+  - '入力テキストを単語列に分割し、6 形式のどれかへ変換する'
+  - '単語分割: セパレータ（_ - スペース）とキャメル境界の両方を認識する'
+  - 'キャメル境界: 小文字→大文字の遷移（fooBar → foo, Bar）と、大文字連続の末尾（XMLHttpRequest → XML, Http, Request）で分割する'
+  - '数字は前の単語に属させる（html5 → html5、分割しない）'
+  - 'target 形式を select で選択できる'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+  - '6 形式: camelCase, PascalCase, snake_case, kebab-case, SCREAMING_SNAKE_CASE, Title Case'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す'
+  - '単語が 1 つだけの入力（例: hello）はその単語のみで変換する'
+  - 'すべてセパレータだけの入力（例: --__）は空文字列を返す'
+  - '既に snake_case の入力から camelCase へ変換できる（逆変換が一意に定まる）'
+  - '大文字連続を含む入力（XMLHttpRequest, HTMLParser）が正しく分割される'
+  - '数字を含む入力（version2, foo-2-bar）で数字が単語境界にならない'
+
+required tests:
+  - logic.test.ts:
+      - 'snake_case → camelCase / PascalCase / kebab-case / SCREAMING_SNAKE_CASE / Title Case'
+      - 'kebab-case → camelCase'
+      - 'camelCase → snake_case'
+      - 'セパレータ混在入力（foo_bar-baz qux）の分割'
+      - 'キャメル境界の分割（XMLHttpRequest, fooBar）'
+      - 'empty input / セパレータのみ / 数字のみの入力'
+  - Tool.test.tsx:
+      - 'ユーザーが入力して target を選んで変換できること'
+      - '結果が出力欄に表示され Copy ボタンが有効なこと'
+
+allowed paths:
+  - packages/tools/case-converter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/**
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 既存 dependency と Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す
