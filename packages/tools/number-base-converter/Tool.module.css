@@ -1,0 +1,34 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.radixRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.radixRow label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.radixRow select {
+  min-width: 10rem;
+}
+
+.output {
+  margin: 0;
+  padding: 1rem;
+  background: var(--color-surface-2);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+}
