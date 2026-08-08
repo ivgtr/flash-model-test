@@ -1,0 +1,144 @@
+:root {
+  --color-bg: #f6f7f9;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #eef0f3;
+  --color-surface-3: #e2e5ea;
+  --color-border: #d8dce2;
+  --color-text: #1c2026;
+  --color-text-muted: #5b6470;
+  --color-text-on-accent: #ffffff;
+  --color-accent: #2f6fed;
+  --color-danger: #c0392b;
+  --color-danger-bg: #fdf0ee;
+  --color-danger-border: #f2c6c0;
+  --color-success: #1e7d43;
+  --color-success-bg: #ecf8f0;
+  --color-success-border: #bfe3cc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.hero p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.searchField {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 2rem;
+}
+
+.field {
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+}
+
+.field:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+textarea.field {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  resize: vertical;
+}
+
+.category {
+  margin-bottom: 2rem;
+}
+
+.category h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.toolList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.toolCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-1);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.toolCard:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.08);
+}
+
+.toolName {
+  font-weight: 600;
+}
+
+.toolDescription {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.backLink {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: var(--color-accent);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}

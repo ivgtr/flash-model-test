@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["@testing-library/jest-dom/vitest", "node"]
+  },
+  "include": ["vitest.workspace.ts", "vitest.setup.ts", "eslint.config.mjs"]
+}
