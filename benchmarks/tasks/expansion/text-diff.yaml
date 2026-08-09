@@ -1,0 +1,56 @@
+id: text-diff
+difficulty: medium
+
+description: >
+  2 つのテキストの行単位差分を計算するツール。LCS（最長共通部分列）ベースの
+  差分アルゴリズムを実装し、統一 diff 風の出力と追加 / 削除行数のサマリを表示する。
+  React 側は行ごとの表示（追加 / 削除 / 変更 / 同一）を色分けする。
+
+requirements:
+  - '行単位の差分を LCS アルゴリズムで計算する'
+  - '追加行（+）・削除行（-）・同一行（  ）を区別して出力する'
+  - '統一 diff 風のヘッダ（--- / +++）を付ける'
+  - '追加・削除の行数をサマリとして表示する'
+  - '前後の文脈を考慮した表示（変更ブロックの前後に同一行を数行含める）は実装任意'
+  - 'CRLF / LF の違いは行内容比較の前に正規化して扱う'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - '同一テキスト: 差分なし（変更 0）を返す'
+  - '片方のみ空: 全行が追加 / 削除になる'
+  - '末尾改行の有無の違いは差分として扱わない（空行の増減のみ差分）'
+  - '行内の 1 文字違いは行単位では変更として扱う（文字単位 diff は対象外）'
+  - '大量の行（数百行）でも完了できること（O(n*m) のメモリ使用に注意し行数上限を設けてよい）'
+  - '前後の行が同じ場合の差分計算の一意性は問わない（妥当な diff なら可）'
+
+required tests:
+  - logic.test.ts:
+      - '同一テキストで差分なし'
+      - '1 行追加 / 1 行削除 / 置換の差分内容'
+      - '複数ブロックの差分'
+      - '片側空の扱い'
+      - 'CRLF 正規化'
+      - 'サマリ（追加数・削除数）の検証'
+  - Tool.test.tsx:
+      - 'ユーザーが 2 つのテキストを入力して差分が表示されること'
+      - '追加 / 削除の表示が区別されていること'
+
+allowed paths:
+  - packages/tools/text-diff/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する（独自 LCS 実装）
+  - 差分 library（diff 等）が必須と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

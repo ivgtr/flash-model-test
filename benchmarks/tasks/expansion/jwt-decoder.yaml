@@ -1,0 +1,58 @@
+id: jwt-decoder
+difficulty: medium
+
+description: >
+  JWT（JWS 形式）をデコードするツール。署名の検証は行わず、header・payload・
+  signature の 3 部分に分割し、Base64URL デコードして JSON として表示する。
+  署名は「検証されていない」ことが UI 上で明示される。
+
+requirements:
+  - 'JWT を . で 3 部分（header / payload / signature）に分割する'
+  - 'header と payload は Base64URL デコードして整形 JSON として表示する'
+  - 'signature は Base64URL のまま表示し、内容をデコードしない'
+  - 'payload が JSON でない場合（例: 任意バイト列）はその旨を明示して失敗させる'
+  - 'exp / nbf / iat 等の数値クレームが存在する場合、ISO 8601 / 可読日時として併記する'
+  - '署名は検証しない旨（"Signature is not verified"）を UI 上に明示する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - 'ピリオドの数が 2 でない（部分が 3 つでない）場合はエラーとして報告する'
+  - 'invalid Base64URL（URL 安全でない文字・不正な文字）はエラーとして報告する'
+  - 'Base64URL パディング: 標準 Base64 の + / / = を含む入力はエラー（URL 安全形式のみ受理）'
+  - 'header / payload が有効な JSON でない場合はエラーとして報告する'
+  - 'exp が非数値・文字列の場合は日時変換せずそのまま表示する（クラッシュさせない）'
+  - '巨大な payload でもクラッシュしない（表示はそのまま）'
+
+required tests:
+  - logic.test.ts:
+      - '典型的な 3 部分 JWT の header / payload デコード結果の検証'
+      - 'exp クレームの可読日時変換'
+      - 'ピリオド数のエラー'
+      - 'invalid Base64URL のエラー'
+      - '非 JSON payload のエラー'
+      - 'パディング / URL 安全文字の round-trip（encode → decode）'
+  - Tool.test.tsx:
+      - 'ユーザーが JWT を入力してデコードできること'
+      - 'エラーがユーザーに見えること'
+      - '署名未検証の注記が見えること'
+
+allowed paths:
+  - packages/tools/jwt-decoder/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 既存 dependency と JavaScript 標準機能（TextEncoder / TextDecoder / atob / btoa 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

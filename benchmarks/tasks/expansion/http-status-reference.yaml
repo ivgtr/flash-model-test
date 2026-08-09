@@ -1,0 +1,54 @@
+id: http-status-reference
+difficulty: easy
+
+description: >
+  HTTP ステータスコードのリファレンスツール。標準的なステータスコード（100〜511、
+  WebDAV / RFC 拡張を含む既知のコード）の一覧を組み込みデータとして持ち、
+  コード・名前・説明・カテゴリ（1xx〜5xx）による検索と絞り込みを提供する。
+
+requirements:
+  - '標準ステータスコードのデータ表を組み込みで持つ（100〜511 の既知コード + 説明的な要約）'
+  - '各エントリ: code / name（例: "Not Found"）/ カテゴリ（1xx Informational〜5xx Server Error）/ 簡単な説明'
+  - 'コード番号（"404"）と名前（"not found"）の部分一致検索ができる'
+  - 'カテゴリ（1xx〜5xx）による絞り込みができる'
+  - '検索なし・絞り込みなしで全一覧を表示する'
+  - '該当なしの場合はその旨のメッセージを表示する'
+
+edge cases:
+  - 'empty input: 検索文字列が空の場合は全一覧を表示する（エラーにしない）'
+  - '数字のみ / 文字のみ / 数字 + 文字の検索がすべて動作する'
+  - '検索は大文字小文字を区別しない'
+  - '該当なし検索では「no results」を表示する'
+  - 'データは検証済みの標準コードのみを含める（捏造コードを追加しない）'
+  - '未割り当てコード（例: 599 等の非標準）は一覧に含めない'
+
+required tests:
+  - logic.test.ts:
+      - '代表コード（200 / 301 / 404 / 500 等）のデータ検索'
+      - '名前での検索（大文字小文字無視）'
+      - 'カテゴリ絞り込み'
+      - '該当なしの結果'
+      - '一覧データの整合性（code 重複なし・コード範囲が妥当・1xx〜5xx が存在）'
+  - Tool.test.tsx:
+      - 'ユーザーが検索して結果が表示されること'
+      - '絞り込みが動作すること'
+
+allowed paths:
+  - packages/tools/http-status-reference/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 標準機能のみで実装する（データはソースファイル内の定数として持つ）
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

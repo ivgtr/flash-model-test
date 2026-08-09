@@ -1,0 +1,55 @@
+id: url-parser
+difficulty: easy
+
+description: >
+  URL を構成要素（protocol / host / hostname / port / pathname / search /
+  hash / username / password / origin / query params）へ分解して表示するツール。
+  URL クラス（Web Platform API）を利用する。
+
+requirements:
+  - '入力 URL を URL クラスで解析し、protocol / host / hostname / port / pathname / search / hash / username / password / origin を表示する'
+  - 'クエリ文字列はパラメータの一覧（key / value）としても表示する'
+  - 'URLSearchParams を介さず URL.searchParams でパラメータを取得する'
+  - '解析結果は整形して表示し、コピーできる（既存の CopyButton を使用）'
+  - '相対 URL はエラーとして報告する（絶対 URL のみ受理）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '相対 URL（/path や ?q=1）はエラーとして報告する'
+  - '不正な URL（スペース混入・スキーム欠落等）はエラーとして報告する'
+  - 'port を明示しない URL は URL.port が空文字列（ブラウザ既定ポート表示の扱いに従う）'
+  - 'IPv6 ホスト（http://[::1]:8080/）を正しく表示する'
+  - 'クエリのない URL はパラメータ一覧を空にする'
+  - 'URL エンコード済みのパス・クエリを正しく分離して表示する'
+
+required tests:
+  - logic.test.ts:
+      - '典型的な URL の全構成要素の分解結果の検証'
+      - 'クエリパラメータの分解'
+      - '相対 URL / 空入力 / 不正 URL のエラー'
+      - 'IPv6 ホスト'
+      - 'ポートなし URL / クエリなし URL'
+      - 'ユーザー名・パスワードを含む URL'
+  - Tool.test.tsx:
+      - 'ユーザーが URL を入力して構成要素が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/url-parser/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - URL / URLSearchParams 等の Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

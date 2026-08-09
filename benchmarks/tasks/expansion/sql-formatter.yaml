@@ -1,0 +1,61 @@
+id: sql-formatter
+difficulty: medium
+
+description: >
+  SQL を整形する**軽量フォーマッタ**。SQL を完全に解析するのではなく、
+  定義したキーワード集合とトークン化ルールに基づいて改行・インデント・
+  キーワードの大文字化を行う。文字列リテラルとコメントは変更しない。
+  理解できない構文はそのまま通過させる。「軽量フォーマッタであり完全な
+  SQL パーサではない」ことを description と UI に明記する。
+
+requirements:
+  - 'トークン化: 空白区切りに加え、シンボル（() , ;）・文字列リテラル（\x27...\x27 / "..."）・コメント（-- ... と /* ... */）を認識する'
+  - '大文字化するキーワード（定義集合）: SELECT FROM WHERE GROUP BY ORDER BY HAVING LIMIT OFFSET JOIN INNER LEFT RIGHT FULL OUTER CROSS ON AS AND OR NOT IN IS NULL LIKE BETWEEN EXISTS UNION INSERT INTO VALUES UPDATE SET DELETE CASE WHEN THEN ELSE END'
+  - '主要節（SELECT / FROM / WHERE / GROUP BY / ORDER BY / HAVING / LIMIT / OFFSET / JOIN 系 / UNION / INSERT INTO / VALUES / SET / DELETE FROM / UPDATE）の前で改行する'
+  - 'インデント: WHERE / ON / HAVING の条件部を 2 スペース、SELECT の選択リストと VALUES の行も 2 スペースでインデントする'
+  - '文字列リテラル内のキーワードは大文字化も改行もしない'
+  - 'コメントは元の位置と内容を保持する'
+  - '出力はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '文字列リテラルに SELECT 等が含まれても変更されない'
+  - 'エスケープされた引用符（\x27\x27 や \ エスケープ）を含む文字列'
+  - '単一行の SELECT が整形される'
+  - 'カンマは末尾に残す（先頭カンマには変換しない）'
+  - '括弧内のサブクエリは追加インデント（対応する場合は 1 レベル）'
+  - '複数ステートメント（; 区切り）は改行で分けて出力する'
+  - '認識外の構文・方言の構文は変更せずそのまま出力に含める'
+
+required tests:
+  - logic.test.ts:
+      - '基本 SELECT の整形（節の改行・インデント・キーワード大文字化）'
+      - '文字列リテラル / コメントの非変更'
+      - 'JOIN / WHERE / GROUP BY / ORDER BY の整形'
+      - 'INSERT INTO ... VALUES の整形'
+      - '複数ステートメントの分離'
+      - '空入力'
+      - '認識外構文のパススルー'
+  - Tool.test.tsx:
+      - 'ユーザーが SQL を入力して整形結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/sql-formatter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 仕様のルールだけを正確に実装し、範囲外はパススルーで誠実に対応する
+  - 完全な SQL フォーマッタが必要と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

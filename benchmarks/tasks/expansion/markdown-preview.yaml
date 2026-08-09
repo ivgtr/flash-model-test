@@ -1,0 +1,57 @@
+id: markdown-preview
+difficulty: medium
+
+description: >
+  Markdown のプレビューを表示するツール。**サブセット実装**であり、仕様で定義した
+  構文のみを描画する。定義外の構文はリテラルテキストとして表示し、不完全な
+  「フル Markdown パーサ」を装わない。生の HTML はエスケープして表示する（XSS 対策）。
+  対応範囲を UI と description に明記する。
+
+requirements:
+  - '対応する構文（仕様範囲）: h1〜h3（# / ## / ###）、強調（**bold** / *italic*）、インラインコード（`code`）、コードブロック（``` で囲んだ範囲）、リンク（[text](url)）、順序なしリスト（- / *）、順序付きリスト（1. 2.）、引用（>）、水平線（---）、段落'
+  - '定義外の構文（表・画像・ネストリスト・定義リスト・HTML タグ等）はリテラルテキストとして表示する'
+  - '入力に含まれる < と > はエスケープして描画する（HTML として実行しない）'
+  - 'インラインコード・コードブロック内は Markdown として解釈せずエスケープして表示する'
+  - 'UI と description に「対応構文のサブセット」の一覧を明示する'
+  - 'プレビュー結果を HTML としてコピーできる'
+
+edge cases:
+  - 'empty input: 空のプレビューを表示する（エラーにしない）'
+  - '閉じていないコードフェンスはそれ以降をコードとして扱う'
+  - '見出し記号のみ（#）や 4 つ以上の # はリテラル表示'
+  - '強調のネスト（**a *b* c**）の扱いを決めてテストする（対応なら正しく描画、非対応ならリテラル）'
+  - 'URL 内の括弧（[x](https://example.com/a_(b)）が正しくリンクになる'
+  - 'インラインコード内の * や ` が解釈されない'
+  - 'リスト項目のインデントは 1 レベルまで対応（深いインデントはリテラル扱いでよいと明記）'
+
+required tests:
+  - logic.test.ts:
+      - '各対応構文（見出し / 強調 / コード / リンク / リスト / 引用 / 水平線 / 段落）の出力 HTML'
+      - '定義外構文のリテラル表示'
+      - 'HTML のエスケープ'
+      - 'インラインコード・コードブロック内の非解釈'
+      - '閉じていないコードフェンス'
+      - '空入力'
+  - Tool.test.tsx:
+      - 'ユーザーが Markdown を入力してプレビューが表示されること'
+      - 'サブセットの注記が表示されること'
+
+allowed paths:
+  - packages/tools/markdown-preview/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 仕様のサブセットだけを正確に実装し、範囲外はリテラル表示で誠実に対応する
+  - フル Markdown 対応が必要と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

@@ -1,0 +1,57 @@
+id: word-frequency
+difficulty: easy
+
+description: >
+  テキスト中の単語の出現頻度を集計するツール。Unicode の文字（\p{L} と \p{N}）
+  の連続を単語として扱い、件数順（同率はアルファベット順）で一覧表示する。
+  大文字小文字の統合と表示件数を選択できる。
+
+requirements:
+  - '単語を Unicode 文字（\p{L}\p{N}）の連続としてトークン化する（英数以外は区切り）'
+  - '単語ごとの出現回数を降順に集計し、同率は語の昇順で並べる'
+  - '大文字小文字を統合するかを選択できる（統合時は最初の表記で表示）'
+  - '表示する上位件数（10 / 20 / 50 / 全件）を選択できる'
+  - '総単語数とユニーク単語数を表示する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+  - 'description に「空白や句読点で区切る方式であり、形態素解析ではない」旨を明記する'
+
+edge cases:
+  - 'empty input: 空文字列は単語数 0 を返す（エラーにしない）'
+  - '句読点・記号のみの入力は単語数 0'
+  - '日本語（分かち書きなし）は 1 連続として数える旨を明記し、クラッシュしない'
+  - '数字のみのトークンも単語として数える'
+  - "アポストロフィ（can't）は区切りとして扱う"
+  - '大文字小文字統合で "The" と "the" が統合される'
+  - 'ハイフン付き語（well-known）は 2 語として数える（ハイフンは区切り）'
+
+required tests:
+  - logic.test.ts:
+      - '基本の頻度集計と並び順（同率の昇順含む）'
+      - '大文字小文字統合'
+      - '上位件数の制限'
+      - '句読点・記号の扱い'
+      - '空入力 / 記号のみ'
+      - '総数・ユニーク数の計算'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力して頻度表が表示されること'
+      - 'オプションの切替が反映されること'
+
+allowed paths:
+  - packages/tools/word-frequency/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（Unicode プロパティ正規表現等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

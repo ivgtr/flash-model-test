@@ -1,0 +1,56 @@
+id: line-sorter
+difficulty: easy
+
+description: >
+  テキストの行を並べ替えるツール。昇順 / 降順、大文字小文字の区別、
+  自然順ソート（数値認識）、行頭空白の無視、空行の扱いを選択できる。
+
+requirements:
+  - '行を昇順 / 降順で並べ替える'
+  - '大文字小文字を区別する / しないを選択できる'
+  - '自然順ソート（数値部分を数値として比較、例: file2 < file10）を選択できる'
+  - '行頭の空白を無視してソートするか選択できる'
+  - '空行を結果から取り除くか選択できる（デフォルトは残す）'
+  - '出力は入力と同じ改行形式で返す'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す（エラーにしない）'
+  - '全行同一の場合は順序が変わらない'
+  - '自然順ソートで file2 / file10 / file1 が file1 < file2 < file10 になる'
+  - '大文字小文字無視ソートで A / a / B が安定に並ぶ'
+  - '空行の先頭 / 末尾 / 中間の位置'
+  - 'Unicode 文字を含む行のソートがクラッシュしない'
+  - 'タブ・スペースのみの行の扱い'
+
+required tests:
+  - logic.test.ts:
+      - '昇順 / 降順の基本ソート'
+      - '大文字小文字区別あり / なし'
+      - '自然順ソート'
+      - '行頭空白の無視'
+      - '空行の除去 / 保持'
+      - '空入力'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力してソート結果が表示されること'
+      - 'オプションの切替が反映されること'
+
+allowed paths:
+  - packages/tools/line-sorter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（localeCompare / Intl.Collator 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

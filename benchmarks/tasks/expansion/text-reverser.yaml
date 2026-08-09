@@ -1,0 +1,54 @@
+id: text-reverser
+difficulty: easy
+
+description: >
+  テキストを反転するツール。文字順の反転（Unicode コードポイント単位）、
+  行単位の反転（行の順序を逆に）、単語単位の反転（単語の順序のみ逆）を
+  選択できる。サロゲートペア（絵文字）は壊さない。
+
+requirements:
+  - '文字順の反転: 文字列全体を Unicode コードポイント単位で反転する'
+  - '行単位の反転: 行の出現順を逆にする（各行の内容は変えない）'
+  - '単語単位の反転: 行ごとの単語順のみを逆にする（各単語の文字順は変えない）'
+  - 'サロゲートペア（絵文字等）を壊さない（code unit 単位の反転をしない）'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す（エラーにしない）'
+  - '絵文字・異体字セレクタ等のサロゲートペアが壊れない'
+  - '末尾改行付き入力の文字反転で改行位置が正しく保たれる'
+  - '行反転で空行の位置が正しく逆順になる'
+  - '単語反転で連続スペース・タブが単語区切りとして扱われる'
+  - '結合文字（combining marks）はコードポイント単位の仕様である旨を description に明記する'
+
+required tests:
+  - logic.test.ts:
+      - 'ASCII 文字列の文字反転'
+      - '日本語・絵文字を含む文字反転（サロゲートペアが壊れない）'
+      - '行反転（空行含む）'
+      - '単語反転'
+      - '空入力'
+      - '末尾改行の扱い'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力して反転結果が表示されること'
+      - 'モード切替が反映されること'
+
+allowed paths:
+  - packages/tools/text-reverser/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（Array.from 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

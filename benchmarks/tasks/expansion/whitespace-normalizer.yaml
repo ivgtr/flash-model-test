@@ -1,0 +1,56 @@
+id: whitespace-normalizer
+difficulty: easy
+
+description: >
+  テキストの空白を正規化するツール。行の trim、連続空白の 1 つへの圧縮、
+  行末空白の削除、CRLF → LF の変換、空行の削除を個別に選択できる。
+
+requirements:
+  - '各行の前後の空白を trim するかを選択できる'
+  - '行内の連続するスペース / タブを 1 つのスペースへ圧縮するかを選択できる'
+  - '行末の空白を削除するかを選択できる'
+  - '改行を LF へ統一する（CRLF / CR を LF へ）ことを選択できる'
+  - '空行（空白のみの行を含む）を削除するかを選択できる'
+  - '各オプションは独立に ON / OFF できる'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す（エラーにしない）'
+  - '全オプション OFF の場合は入力がそのまま返る'
+  - 'タブを含む行の圧縮（タブもスペースに統一される）'
+  - '複数空行が 1 つになる（削除 OFF 時は保持）'
+  - '行末空白の削除が trim とは独立に動作する'
+  - 'CRLF 変換は LF のみを出力する'
+  - '全角スペースは対象外（ASCII 空白のみを扱う）ことを description に明記する'
+
+required tests:
+  - logic.test.ts:
+      - '各オプション単独の効果'
+      - '全オプション ON の組み合わせ'
+      - '全オプション OFF の恒等性'
+      - 'タブの扱い'
+      - 'CRLF / CR の LF 変換'
+      - '空入力'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力して正規化結果が表示されること'
+      - 'オプションの切替が反映されること'
+
+allowed paths:
+  - packages/tools/whitespace-normalizer/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

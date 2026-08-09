@@ -1,0 +1,58 @@
+id: string-escaper
+difficulty: medium
+
+description: >
+  文字列のエスケープ / アンエスケープツール。HTML エンティティ、URL コンポーネント、
+  JSON 文字列、正規表現リテラル、JS 文字列リテラルの各コンテキストに対して
+  エスケープ（および対応するアンエスケープ）を行う。
+
+requirements:
+  - 'コンテキストを選択できる: HTML / URL コンポーネント / JSON / 正規表現 / JS 文字列'
+  - 'HTML: エスケープ（& < > " \x27）とアンエスケープ（数値参照・名前付き参照の主要なもの）'
+  - 'URL コンポーネント: encodeURIComponent / decodeURIComponent'
+  - 'JSON: 文字列を JSON.stringify 相当のエスケープへ変換（" \ / \n \t \uXXXX 等）'
+  - '正規表現: メタ文字をエスケープ（アンエスケープは提供しない旨を明示）'
+  - 'JS 文字列: シングル / ダブルクォートの選択に対応した文字列リテラル化'
+  - '方向を切り替えられる（エスケープ ↔ アンエスケープ）'
+  - 'アンエスケープで不正な入力（不正なエンティティ / 不正な % シーケンス / 不正な JSON 文字列）はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列のエスケープ / アンエスケープは空文字列を返す'
+  - 'HTML アンエスケープの主要な名前付き参照（amp / lt / gt / quot / apos / nbsp）'
+  - 'URL エンコードが round-trip する'
+  - 'JSON エスケープが round-trip する'
+  - 'Unicode（絵文字含む）の各コンテキストでの正しい扱い'
+  - '正規表現エスケープで . * + ? ^ $ {} [] () | / \ が対象になる'
+  - '不正なアンエスケープ入力で黙って部分変換しない'
+
+required tests:
+  - logic.test.ts:
+      - '各コンテキストのエスケープ結果'
+      - '各コンテキストのアンエスケープ（round-trip 含む）'
+      - '正規表現エスケープの対象文字'
+      - '不正入力のエラー'
+      - '空入力'
+  - Tool.test.tsx:
+      - 'ユーザーが入力してエスケープ結果が表示されること'
+      - 'コンテキスト・方向の切替が反映されること'
+
+allowed paths:
+  - packages/tools/string-escaper/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（encodeURIComponent / JSON.stringify 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

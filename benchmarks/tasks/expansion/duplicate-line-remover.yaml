@@ -1,0 +1,54 @@
+id: duplicate-line-remover
+difficulty: easy
+
+description: >
+  重複する行を削除するツール。最初に出現した行を残し、以降の重複行を
+  取り除く。大文字小文字の無視、行頭行末空白の無視、空白行の除去を選択できる。
+
+requirements:
+  - '重複行を削除し、最初に出現した行のみを残す（出現順を保持）'
+  - '大文字小文字を無視して比較するかを選択できる'
+  - '比較前に前後の空白を trim するかを選択できる'
+  - '空白のみの行を削除するかを選択できる'
+  - '出力は入力と同じ改行形式で返す'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列は空文字列を返す（エラーにしない）'
+  - '重複なしの入力はそのままの順序で返る'
+  - '全行同一の場合は 1 行になる'
+  - 'trim 無視モードで "abc" と "  abc  " が同一視される'
+  - '大文字小文字無視モードで "ABC" と "abc" が同一視される'
+  - 'trim モードでは出力は最初の出現行の元の形のまま（trim しない）'
+  - '空行のみの入力で空白除去オンの場合は空文字列'
+
+required tests:
+  - logic.test.ts:
+      - '基本の重複除去（出現順保持）'
+      - '大文字小文字無視モード'
+      - 'trim モード'
+      - '空白行の除去'
+      - '空入力 / 重複なし'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力して重複除去結果が表示されること'
+      - 'オプションの切替が反映されること'
+
+allowed paths:
+  - packages/tools/duplicate-line-remover/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

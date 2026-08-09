@@ -1,0 +1,56 @@
+id: character-code-converter
+difficulty: easy
+
+description: >
+  文字と文字コードを相互変換するツール。文字列の各文字について 10 進 / 16 進（U+ /
+  0x）/ 8 進 / 2 進のコード値と UTF-16 コードユニットを表示し、コード値（複数可）から
+  文字へ変換する逆方向もサポートする。
+
+requirements:
+  - '文字列をコードポイント単位で分解し、各文字の 10 進 / 16 進（U+XXXX）/ 8 進 / 2 進のコード値と UTF-16 コードユニット（16 進）を表示する'
+  - 'コード → 文字の逆変換モードを持つ（10 進・16 進（U+ / 0x プレフィックス）・8 進・2 進の単一コード値、またはカンマ区切りの複数コード値）'
+  - '方向の切り替えができる'
+  - '16 進は大文字 / 小文字のどちらで入力しても受理する'
+  - '範囲外のコード値（0x110000 以上 / サロゲート範囲 0xD800-0xDFFF 単独）はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '絵文字（サロゲートペア）は 1 文字としてコード値と UTF-16 ユニットを表示する'
+  - '結合文字は独立したコードポイントとして扱う'
+  - 'コード入力のプレフィックス（U+1F600 / 0x1F600 / 128512）の判別'
+  - '2 進入力（11000000000 等）の判別と値の検証'
+  - '不正なコード入力（空トークン・不正文字・範囲外）はエラー'
+  - 'カンマ区切り複数コードの逆変換'
+
+required tests:
+  - logic.test.ts:
+      - 'ASCII / 日本語 / 絵文字の各コード値表示'
+      - 'UTF-16 ユニット表示'
+      - 'コード → 文字の逆変換（各基数）'
+      - '複数コードの逆変換'
+      - '不正コード（範囲外 / サロゲート単独 / 不正文字）のエラー'
+      - '空入力のエラー'
+  - Tool.test.tsx:
+      - 'ユーザーが文字を入力してコードが表示されること'
+      - '逆方向の変換とエラー表示が動作すること'
+
+allowed paths:
+  - packages/tools/character-code-converter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

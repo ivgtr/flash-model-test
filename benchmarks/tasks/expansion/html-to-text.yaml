@@ -1,0 +1,58 @@
+id: html-to-text
+difficulty: medium
+
+description: >
+  HTML 文字列をプレーンテキストへ変換するツール。DOMParser（ブラウザ / jsdom が
+  提供する Web Platform API）で解析し、ブロック要素で改行を挿入して
+  テキスト内容を抽出する。script / style は除外する。
+
+requirements:
+  - 'DOMParser を使用して HTML を解析しテキスト内容を抽出する（独自 HTML パーサは実装しない）'
+  - 'ブロック要素（p / div / h1-h6 / li / blockquote / section 等）の境界で改行を挿入する'
+  - 'br 要素を改行として扱う'
+  - 'script / style / noscript / template の内容は出力に含めない'
+  - 'HTML エンティティ（&amp; / &lt; / &nbsp; 等）は DOM 解析の結果としてデコードされる'
+  - '連続する空白は 1 つの空白へ潰す（pre / code 内は除く）'
+  - '出力はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - 'HTML でないプレーンテキスト入力: そのままのテキストとして出力する'
+  - '不正な HTML タグ（閉じ忘れ等）: DOMParser は寛容に解釈するため、エラーにせず解釈結果を返す'
+  - 'script のみの入力: 空文字列を返す（エラーにしない）'
+  - 'img / input 等のボイド要素は出力に何も残さない'
+  - 'pre / code 内の改行と空白は保持する'
+  - 'テキストが全くない HTML（タグのみ）は空文字列を返す'
+
+required tests:
+  - logic.test.ts:
+      - '単純な HTML のテキスト抽出'
+      - 'ブロック要素境界での改行挿入'
+      - 'br の改行変換'
+      - 'script / style の除外'
+      - 'エンティティのデコード'
+      - '空白の正規化（pre 内は保持）'
+      - '空・テキスト無し・プレーンテキスト入力の扱い'
+  - Tool.test.tsx:
+      - 'ユーザーが HTML を入力してテキストへ変換できること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/html-to-text/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - DOMParser / XMLSerializer 等の Web Platform API（テストは jsdom 上で動作）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

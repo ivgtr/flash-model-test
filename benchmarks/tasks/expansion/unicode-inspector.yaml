@@ -1,0 +1,58 @@
+id: unicode-inspector
+difficulty: medium
+
+description: >
+  入力文字列を Unicode コードポイント単位で検査するツール。各文字のコードポイント
+  （U+XXXX）、10 進数、UTF-16 コードユニット、UTF-8 バイト列（16 進）を表示し、
+  サロゲートペア（絵文字等）の判定と全体統計（コードポイント数 / UTF-16 単位 /
+  UTF-8 バイト数）を出す。Unicode 名や文字カテゴリのデータベースは持たない旨を
+  description に明記する。
+
+requirements:
+  - '入力を Unicode コードポイント単位（Array.from）で分解する'
+  - '各文字について表示: 文字、U+XXXX（16 進）、10 進コードポイント、UTF-16 コードユニット（サロゲートペアなら 2 つ）、UTF-8 バイト列（16 進）'
+  - 'サロゲートペア文字（絵文字等）は 1 文字として扱い、astral と表示する'
+  - '制御文字（改行 / タブ / null 等）は記号表示（\n / \t / U+0000 等）する'
+  - '全体統計: コードポイント数、UTF-16 コードユニット数、UTF-8 バイト数'
+  - 'Unicode 名・カテゴリのデータベースは持たない旨を description と UI に明記する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列は統計 0 を返す（エラーにしない）'
+  - 'サロゲートペア（😀 U+1F600）が 1 文字として表示され 2 文字に分かれない'
+  - '結合文字（combining marks）は独立したコードポイントとして表示する'
+  - '未割り当てコードポイントを含む文字列もクラッシュしない'
+  - 'UTF-8 のマルチバイト表現（日本語 3 バイト等）が正しく表示される'
+  - '改行は \n として 1 文字で表示する'
+  - '文字列長の上限（例: 1000 文字）を超えた場合はエラーまたは明示的な通知'
+
+required tests:
+  - logic.test.ts:
+      - 'ASCII 文字の各表示値'
+      - '日本語の UTF-8 バイト列'
+      - '絵文字のサロゲートペア判定と UTF-16 ユニット表示'
+      - '制御文字の記号表示'
+      - '全体統計の計算'
+      - '空入力'
+  - Tool.test.tsx:
+      - 'ユーザーがテキストを入力して検査結果が表示されること'
+
+allowed paths:
+  - packages/tools/unicode-inspector/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（TextEncoder / codePointAt 等）だけで実装する
+  - Unicode 名やカテゴリのデータベースが必要と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

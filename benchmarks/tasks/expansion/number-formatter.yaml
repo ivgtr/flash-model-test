@@ -1,0 +1,57 @@
+id: number-formatter
+difficulty: easy
+
+description: >
+  数値を Intl.NumberFormat で整形するツール。ロケール、スタイル（decimal /
+  percent / currency）、小数桁数、桁区切りの有無を選択できる。
+
+requirements:
+  - 'ロケールを選択できる: en-US / ja-JP / de-DE / fr-FR / zh-CN / その他任意の Intl 対応ロケール'
+  - 'スタイルを選択できる: decimal（数値）/ percent（比率 0.25 → 25%）/ currency（通貨）'
+  - 'currency スタイルでは通貨コード（USD / JPY / EUR 等）を選択できる'
+  - '最小 / 最大小数桁数（0〜6）を指定できる'
+  - '桁区切り（grouping）の有無を切り替えられる'
+  - 'プレフィックス / サフィックス文字列を任意に付与できる'
+  - '不正な数値入力はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '数値として解釈できない文字列はエラーとして報告する'
+  - '負の数・小数・大きい数'
+  - 'percent は入力を比率として扱う（0.5 → 50%）'
+  - 'JPY は整数表示（小数桁が自動で 0）になる場合がある等、Intl のロケール既定に従う'
+  - 'NaN / Infinity はエラーとして報告する'
+  - 'leading zeros（"007"）は数値として解釈する'
+
+required tests:
+  - logic.test.ts:
+      - 'ロケール別の整形結果（en-US / ja-JP / de-DE 等）'
+      - 'percent / currency スタイル'
+      - '小数桁数の指定'
+      - '桁区切りオフ'
+      - 'プレフィックス / サフィックス'
+      - '不正入力 / NaN / Infinity / 空入力のエラー'
+  - Tool.test.tsx:
+      - 'ユーザーが数値を入力して整形結果が表示されること'
+      - 'オプションの切替が反映されること'
+
+allowed paths:
+  - packages/tools/number-formatter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - Intl.NumberFormat 等の Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

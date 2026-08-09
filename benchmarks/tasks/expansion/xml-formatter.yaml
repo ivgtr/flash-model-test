@@ -1,0 +1,58 @@
+id: xml-formatter
+difficulty: medium
+
+description: >
+  XML を整形（プリティプリント）するツール。DOMParser で解析し、
+  XMLSerializer と独自の再シリアライズでインデントを付けて出力する。
+  属性・テキスト・CDATA・コメント・自己終了タグを正しく保持する。
+
+requirements:
+  - 'DOMParser（XML モード）で入力 XML を解析する'
+  - 'インデント幅（2 / 4 スペース）を選択できる'
+  - '子要素のない要素は自己終了タグ（<a/>）として出力する'
+  - '属性はタグ内に保持し、属性値をエスケープして出力する'
+  - 'テキストノード・CDATA・コメントを正しく保持する'
+  - 'パース失敗（parsererror）はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '不正な XML（閉じタグ不一致・不正な文字等）はエラーとして報告する'
+  - 'テキストのみの要素（<a>text</a>）はインラインで出力する'
+  - '空白のみのテキストノードは整形時に無視してよい'
+  - 'CDATA（<![CDATA[...]]>）の内容はそのまま保持する'
+  - 'コメント（<!-- ... -->）は保持する'
+  - '属性値に < や " が含まれる場合のエスケープ'
+  - 'ネストの深い XML のインデント'
+
+required tests:
+  - logic.test.ts:
+      - '単純な XML の整形結果（インデント）'
+      - '自己終了タグ'
+      - '属性の保持とエスケープ'
+      - 'CDATA / コメントの保持'
+      - 'テキスト要素のインライン出力'
+      - '不正 XML / 空入力のエラー'
+  - Tool.test.tsx:
+      - 'ユーザーが XML を入力して整形結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/xml-formatter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - DOMParser / XMLSerializer 等の Web Platform API（テストは jsdom 上で動作）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

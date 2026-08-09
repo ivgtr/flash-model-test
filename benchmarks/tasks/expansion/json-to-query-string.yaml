@@ -1,0 +1,56 @@
+id: json-to-query-string
+difficulty: easy
+
+description: >
+  JSON オブジェクトを URL クエリ文字列へ変換するツール。URLSearchParams を利用し、
+  文字列・数値・真偽値のフラットなオブジェクトと、プリミティブの配列（繰り返しキー）を
+  サポートする。ネストしたオブジェクトはエラーとして報告する。
+
+requirements:
+  - 'フラットな JSON オブジェクトをクエリ文字列（key=value&key2=value2）へ変換する'
+  - '値は string / number / boolean / null / string 等のプリミティブ配列をサポートする'
+  - '配列は同じキーを繰り返す形式（?tag=a&tag=b）で出力する'
+  - 'null / undefined の値はスキップする'
+  - 'エンコードは URLSearchParams の仕様に従う（スペースは +、日本語等はパーセントエンコード）'
+  - 'オブジェクト / 配列以外のルート値やネストしたオブジェクトはエラーとして報告する'
+  - '出力はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '空オブジェクト {} は空文字列を出力する（エラーにしない）'
+  - '空文字列の値は key= として出力する'
+  - '空配列はキーを出力しない'
+  - 'キーに特殊文字・日本語が含まれる場合も正しくエンコードする'
+  - '先頭の ? を付けるか付けないかを選択できる'
+
+required tests:
+  - logic.test.ts:
+      - '基本オブジェクトの変換結果の検証'
+      - '配列の繰り返しキー出力'
+      - 'null 値のスキップ'
+      - 'エンコード（日本語・特殊文字・スペース）'
+      - 'ネストオブジェクトのエラー'
+      - '空オブジェクト / 空配列 / 空文字列値の扱い'
+  - Tool.test.tsx:
+      - 'ユーザーが JSON を入力してクエリ文字列へ変換できること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/json-to-query-string/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - URLSearchParams 等の Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

@@ -1,0 +1,55 @@
+id: ip-address-converter
+difficulty: medium
+
+description: >
+  IP アドレスの表現を相互変換するツール。IPv4 のドット区切り ↔ 32bit 整数 ↔
+  2 進数 ↔ 16 進数、および IPv6 の検証と圧縮形式 / 展開形式の変換を提供する。
+
+requirements:
+  - 'IPv4: ドット区切り（192.168.0.1）↔ 32bit 整数（0〜4294967295）↔ 2 進数（32bit）↔ 16 進数（8 桁）の相互変換'
+  - 'IPv4 の入力はドット区切り / 整数 / 16 進数のどれでも受理する'
+  - 'IPv6: 入力の検証と、完全展開形式 / 圧縮形式（::）の相互変換を行う'
+  - 'IPv6 の 16 進は小文字で統一して出力する'
+  - '無効な IPv4 / IPv6 はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - 'IPv4 の各オクテットが 0〜255 の範囲外はエラー'
+  - 'IPv4 オクテットの先頭ゼロ（192.168.001.1）は不正として扱う'
+  - 'IPv4 オクテット数が 4 でない場合はエラー'
+  - '整数入力が 0〜4294967295 の範囲外はエラー'
+  - 'IPv6: セクション数が 8 でない・:: が 2 回以上・不正な 16 進文字はエラー'
+  - 'IPv6 の :: 圧縮と展開の round-trip'
+  - 'IPv4-mapped IPv6（::ffff:192.168.0.1）は展開して表示する（対応任意、対応しない場合はその旨を明記）'
+
+required tests:
+  - logic.test.ts:
+      - 'IPv4 のドット ↔ 整数 ↔ 2 進数 ↔ 16 進数の変換'
+      - 'IPv4 の無効入力（範囲外 / オクテット数 / 先頭ゼロ / 整数範囲）のエラー'
+      - 'IPv6 の圧縮 ↔ 展開の変換'
+      - 'IPv6 の無効入力（セクション数 / 二重 :: / 不正文字）のエラー'
+      - 'IPv6 の round-trip'
+  - Tool.test.tsx:
+      - 'ユーザーが IP を入力して変換結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/ip-address-converter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（BigInt 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

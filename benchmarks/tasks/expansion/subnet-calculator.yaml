@@ -1,0 +1,56 @@
+id: subnet-calculator
+difficulty: medium
+
+description: >
+  IPv4 サブネットの計算ツール。IP アドレスとプレフィックス長（またはサブネットマスク）から、
+  ネットワークアドレス / ブロードキャスト / 使用可能ホスト範囲 / ホスト数 /
+  マスク（ドット / 2 進数 / CIDR）/ ワイルドカードマスクを計算する。
+
+requirements:
+  - '入力: IPv4 アドレス + CIDR プレフィックス（0〜32）またはドット区切りマスク（255.255.255.0）'
+  - '出力: ネットワークアドレス、ブロードキャスト、最初 / 最後の使用可能アドレス、使用可能ホスト数、総アドレス数、マスク（ドット区切り / 2 進数 / CIDR 表記）、ワイルドカードマスク'
+  - '計算は BigInt を使う（符号付き 32bit の罠を避ける）'
+  - '/31 は RFC 3021 に従い 2 アドレス、/32 は 1 アドレスを使用可能として扱う（それ以外は総数 - 2）'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '無効な IP / プレフィックスが 0〜32 の範囲外 / マスクが連続 1 でない場合はエラー'
+  - '/0 のネットワークアドレスは 0.0.0.0、ブロードキャストは 255.255.255.255'
+  - '/32 の使用可能ホストは 1（自身のみ）'
+  - '/31 の使用可能ホストは 2'
+  - 'マスク入力を CIDR へ正しく変換する（255.255.255.0 → /24）'
+  - 'ホストビットが非ゼロの IP（192.168.1.129/25 等）でもネットワークアドレスが正しく算出される'
+
+required tests:
+  - logic.test.ts:
+      - '/24 の代表的な計算結果'
+      - '非境界 IP 入力（192.168.1.129/25）の計算'
+      - '/0 と /32 の境界値'
+      - '/31 の使用可能数'
+      - 'マスク → CIDR 変換'
+      - '無効入力（IP / プレフィックス / 非連続マスク）のエラー'
+      - 'ホスト数の計算'
+  - Tool.test.tsx:
+      - 'ユーザーが IP と CIDR を入力して結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/subnet-calculator/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（BigInt 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

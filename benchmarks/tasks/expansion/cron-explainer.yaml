@@ -1,0 +1,61 @@
+id: cron-explainer
+difficulty: medium
+
+description: >
+  標準 5 フィールド cron 式を説明するツール。各フィールド（分・時・日・月・曜日）の
+  意味を自然言語で説明し、式の妥当性を検証する。指定時刻からの次の実行時刻
+  （最大 5 件）も計算する。ロジックの「現在時刻」は注入可能にしてテストする。
+
+requirements:
+  - '5 フィールド cron（分 時 日 月 曜日）をパースする'
+  - '各フィールドの構文をサポート: 数値 / * / 範囲（a-b）/ リスト（a,b,c）/ ステップ（*/n, a-b/n, a/n）'
+  - '月名（JAN〜DEC）と曜日名（SUN〜SAT）を大文字小文字無視でサポートする'
+  - '曜日は 0 と 7 の両方を日曜として扱う'
+  - '各フィールドの解釈（例: "毎時 15 分に実行"）を自然言語で説明する'
+  - 'フィールド数の不一致・値域外・不正な構文はエラーとして報告する'
+  - '指定時刻（注入可能）から次の実行時刻を最大 5 件、直近から順に計算する'
+  - '次実行の探索は 400 日以内で打ち切り、見つからなければその旨を報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - 'フィールドが 5 つでない場合はエラー'
+  - '値域外（分 60 / 時 24 / 月 13 等）はエラー'
+  - '*/0 や a-b/n の n=0 はエラー'
+  - '範囲の開始 > 終了（5-2）はエラー'
+  - '日と曜日の両方が制限されている場合は cron の慣習に従い OR 条件で評価する旨を明記する'
+  - '月の末日（日フィールドが 31 で 30 日までの月）は該当日なしとして扱う'
+  - '閏年 2 月 29 日を含む cron の次実行計算'
+  - '大文字小文字混在の月名 / 曜日名'
+
+required tests:
+  - logic.test.ts:
+      - '各構文（* / 範囲 / リスト / ステップ）のパースと説明'
+      - '月名 / 曜日名の解釈'
+      - '不正 cron（フィールド数 / 値域 / n=0 / 逆順範囲）のエラー'
+      - '次実行時刻の計算（注入した now から、固定された cron の直近 5 件）'
+      - '日と曜日の OR 条件'
+      - '400 日以内に該当がない場合の報告'
+  - Tool.test.tsx:
+      - 'ユーザーが cron を入力して説明が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/cron-explainer/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能（Date 等）だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

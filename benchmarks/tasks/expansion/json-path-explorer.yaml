@@ -1,0 +1,60 @@
+id: json-path-explorer
+difficulty: medium
+
+description: >
+  JSONPath の**基本サブセット**で JSON の値を探索するツール。対応構文は
+  `$` からのドットアクセス（$.a.b）とブラケットアクセス（$['key'] / $[0]）。
+  ワイルドカード・フィルタ・再帰降下・スライスは**未対応**とし、使用時は
+  「未対応の構文」エラーを返す。値は型付きで表示し、パス履歴を辿れる。
+
+requirements:
+  - "対応構文: $（ルート）、.key、['key']（キー）、[n]（配列インデックス）の組み合わせ"
+  - 'キーにドット・スペース・日本語を含む場合はブラケット記法でアクセスできる'
+  - '未対応構文（* / .. / [?()] / [start:end] 等）は「unsupported syntax」エラーとして報告する'
+  - '存在しないキー・範囲外インデックスは「not found」として報告する'
+  - '結果の値と型（string / number / boolean / null / array / object）を表示する'
+  - '入力 JSON が不正な場合はエラーとして報告する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+  - 'description と UI に対応構文の範囲を明記する'
+
+edge cases:
+  - 'empty input: JSON / パスのどちらかが空ならエラーとして報告する'
+  - 'ルートのみ（$）の場合は入力全体を返す'
+  - "空キー（$['']）は不正として報告する"
+  - 'ブラケット内のクォートをエスケープしたキー（$[''a"b'']）'
+  - '配列のネスト（$.a[0].b[1]）'
+  - '数値に見えるキー（{"0": "x"}）へのブラケットアクセス'
+  - '結果が null 値の場合は「not found」と区別して表示する'
+
+required tests:
+  - logic.test.ts:
+      - 'ドット / ブラケット / インデックスの組み合わせの探索'
+      - '未対応構文のエラー'
+      - 'not found のエラー'
+      - 'null 値と not found の区別'
+      - '不正 JSON / 空入力のエラー'
+      - '型の判定'
+      - '特殊キー（ドット・スペース・日本語・エスケープ）'
+  - Tool.test.tsx:
+      - 'ユーザーが JSON とパスを入力して結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/json-path-explorer/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する（パーサは仕様範囲のサブセットのみを実装）
+  - フル JSONPath 対応が必要と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

@@ -1,0 +1,62 @@
+id: yaml-json-converter
+difficulty: hard
+
+description: >
+  YAML と JSON を相互変換するツール。**仕様で定義した YAML サブセットのみ**を
+  パースし、範囲外の構文は「未対応構文」エラーとして報告する。黙って間違った
+  解釈をしない。JSON → YAML は正しく完全に出力できる（YAML は JSON の上位互換）。
+
+requirements:
+  - 'JSON → YAML: 任意の JSON 値（string / number / boolean / null / array / object、ネスト含む）をブロックスタイル YAML へ変換する'
+  - 'JSON → YAML で文字列の引用は必要最小限にする（プレーンとして解釈が曖昧になる値のみ引用: 例 "true" / "123" / ": " / 先頭の記号 / 改行を含む値等）'
+  - 'YAML → JSON の対応範囲（サブセット）: ブロックマッピング、ブロックシーケンス、インデントによるネスト、プレーンスカラー、シングル / ダブルクォートスカラー、数値 / boolean / null、行内コメント（#）、空行、CRLF'
+  - 'YAML → JSON の範囲外（アンカー / エイリアス / タグ / マルチドキュメント / ブロックスカラー | > / フローコレクション / マージキー等）は「unsupported syntax: <構文名>」エラーとして報告する'
+  - 'YAML → JSON でインデント不一致・タブインデント・重複キーはエラーとして報告する'
+  - 'description と UI に対応範囲（サブセット）と範囲外の一覧を明記する'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する（両方向）'
+  - 'YAML → JSON: ルートが単一スカラー / 空マッピング {} / 空シーケンス []'
+  - 'YAML → JSON: 引用内の # はコメントと解釈しない'
+  - 'YAML → JSON: シングルクォート内の \x27\x27（エスケープされた引用符）'
+  - 'YAML → JSON: ダブルクォート内の \n \t \\ エスケープ'
+  - 'YAML → JSON: プレーンスカラーの true / false / null / 数値 / 日付風文字列は仕様に従い型変換（"123" 等の引用付きは文字列のまま）'
+  - 'YAML → JSON: キーは常に文字列として扱う'
+  - 'JSON → YAML: 空文字列値 / null / 空オブジェクト / 深いネスト'
+  - 'JSON → YAML: ダブルクォートが必要な文字列（改行・# 先頭・: を含む等）の正しい出力'
+
+required tests:
+  - logic.test.ts:
+      - 'JSON → YAML の基本ケース（オブジェクト / 配列 / ネスト / スカラー）'
+      - 'JSON → YAML の引用が必要な文字列の出力'
+      - 'YAML → JSON のブロックマッピング / シーケンス / ネスト'
+      - 'YAML → JSON のスカラー型変換と引用付き文字列'
+      - 'YAML → JSON の範囲外構文ごとのエラーメッセージ'
+      - 'YAML → JSON の重複キー / タブインデント / インデント不一致のエラー'
+      - 'round-trip（JSON → YAML → JSON で値が一致）'
+      - '空入力のエラー'
+  - Tool.test.tsx:
+      - 'ユーザーが YAML を入力して JSON へ変換できること'
+      - '逆方向も動作すること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/yaml-json-converter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 仕様のサブセットだけを正確に実装し、範囲外は明示的エラーで誠実に対応する
+  - 範囲外構文への対応が必須と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

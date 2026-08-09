@@ -1,0 +1,60 @@
+id: user-agent-parser
+difficulty: medium
+
+description: >
+  User-Agent 文字列からブラウザ・OS・端末種別を推定するツール。
+  本格的な UA パーサの実装は目的ではなく、**定義された範囲内の既知パターン**だけを
+  検出し、それ以外は誠実に "Unknown" と報告する。検出は正規表現による
+  パターンマッチングのみで、未知の UA に対する推測や捏造は行わない。
+
+requirements:
+  - '検出対象（定義範囲）: ブラウザ = Chrome / Firefox / Safari / Edge / Opera / Samsung Internet'
+  - '検出対象（定義範囲）: OS = Windows / macOS / Linux / Android / iOS / Chrome OS'
+  - '検出対象（定義範囲）: 端末種別 = desktop / mobile / tablet（UA 上の記号のみから判定）'
+  - 'ブラウザは可能ならメジャーバージョンを併記する'
+  - '検出範囲外の UA は各項目を "Unknown" と報告する（無理に当てはめない）'
+  - 'Googlebot 等のクローラ UA はブラウザ "Unknown"、ロボットである旨を表示する'
+  - '結果は整形して表示し、コピーできる（既存の CopyButton を使用）'
+  - 'description と UI に「軽量なパターン検出であり、完全な UA パーサではない」旨を明示する'
+
+edge cases:
+  - 'empty input: 空文字列はすべて Unknown として報告する（エラーにしない）'
+  - '未知の UA 文字列: 全て Unknown（エラーにしない）'
+  - 'Edge は Chrome より優先して検出する（Chromium 系の順序に注意）'
+  - 'Samsung Internet は Chrome より優先して検出する'
+  - 'iOS Safari の Mobile 表記（OS は iOS と報告する）'
+  - 'Android の Mobile / Tablet 表記'
+  - 'バージョンが取れない場合もブラウザ名のみで報告する'
+  - 'UA 中に複数ブラウザ名が含まれる場合も決定的な優先順位で 1 つに決める'
+
+required tests:
+  - logic.test.ts:
+      - 'Chrome / Firefox / Safari / Edge / Opera / Samsung Internet の典型的 UA の検出'
+      - 'Windows / macOS / Linux / Android / iOS / Chrome OS の検出'
+      - 'mobile / tablet / desktop の判定'
+      - '未知 UA・空 UA が Unknown になること'
+      - '優先順位（Edge > Chrome、Samsung > Chrome）の検証'
+      - 'クローラ UA の扱い'
+  - Tool.test.tsx:
+      - 'ユーザーが UA を入力して結果が表示されること'
+      - '未知 UA でもクラッシュせず Unknown が表示されること'
+
+allowed paths:
+  - packages/tools/user-agent-parser/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 正規表現と JavaScript 標準機能だけで実装する
+  - 外部 UA データベースや解析 library が必須と判断した場合は、独自の不完全実装を作らず ESCALATE（DEPENDENCY_REQUIRED）を返す

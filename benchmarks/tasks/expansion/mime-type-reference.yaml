@@ -1,0 +1,56 @@
+id: mime-type-reference
+difficulty: easy
+
+description: >
+  MIME タイプのリファレンスツール。よく使われる MIME タイプと拡張子の対応表を
+  組み込みデータとして持ち、拡張子または MIME タイプ文字列から検索できる。
+
+requirements:
+  - '主要な MIME タイプと拡張子の対応表を組み込みデータとして持つ（100 種以上）'
+  - '拡張子（"png" / ".png"）で検索すると MIME タイプ・説明・代表拡張子を表示する'
+  - 'MIME タイプ文字列（"image/png"）で検索すると対応拡張子・説明を表示する'
+  - '検索は大文字小文字を区別しない'
+  - 'text / image / audio / video / application / font などのカテゴリ絞り込みができる'
+  - '該当なしの場合はその旨のメッセージを表示する'
+  - 'データは一般的に認知された対応のみを含める（捏造しない）'
+
+edge cases:
+  - 'empty input: 空の場合は全一覧を表示する（エラーにしない）'
+  - '拡張子先頭のドット（.png / png）の両方を受理する'
+  - '該当なし検索では「no results」を表示する'
+  - '複数の拡張子を持つ MIME タイプ（例: .jpeg / .jpg）の検索が動作する'
+  - '複数の MIME タイプを持つ拡張子（例: .js の application/javascript / text/javascript）は両方表示する'
+  - '検索入力が MIME タイプと拡張子のどちらでも一致する場合は両方を表示する'
+
+required tests:
+  - logic.test.ts:
+      - '代表拡張子（png / jpg / html / json 等）の検索'
+      - 'MIME タイプ文字列での検索'
+      - 'ドット有無の受理'
+      - '大文字小文字の無視'
+      - 'カテゴリ絞り込み'
+      - '該当なし結果'
+      - 'データの整合性（全エントリの type/subtype 形式が妥当）'
+  - Tool.test.tsx:
+      - 'ユーザーが検索して結果が表示されること'
+      - '絞り込みが動作すること'
+
+allowed paths:
+  - packages/tools/mime-type-reference/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - 標準機能のみで実装する（データはソースファイル内の定数として持つ）
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

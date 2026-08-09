@@ -1,0 +1,59 @@
+id: csv-formatter
+difficulty: medium
+
+description: >
+  CSV テキストを整形式へ整形するツール。標準的な CSV 文法でパースし、
+  統一された引用ルールで再シリアライズする。引用スタイル（必要な時のみ / 全フィールド）、
+  フィールドの trim、空行の除去を選択できる。
+
+requirements:
+  - '標準的な CSV 文法（引用符・エスケープ ""・引用内改行・引用内区切り文字）でパースする'
+  - '再シリアライズの引用スタイルを選択できる: 必要な時のみ / 常に引用'
+  - 'フィールド値の前後空白を trim するかを選択できる'
+  - '空行を除去するかを選択できる'
+  - '区切り文字を選択できる: コンマ / セミコロン / タブ'
+  - 'パースできない入力（引用が閉じない等）はエラーとして報告する'
+  - '出力はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - 'empty input: 空文字列はエラーとして報告する'
+  - '既に整形済みの CSV は内容が変わらない（引用ルールに従う）'
+  - '引用なしの通常フィールドは引用なしで出力する（必要な時のみモード）'
+  - '区切り文字・引用符・改行を含む値は常に引用する'
+  - 'CRLF 入力は LF で正規化して出力する'
+  - 'trim モードで "  abc  " が "abc" になる'
+  - 'ヘッダー行のみの入力はそのまま返る'
+  - 'フィールド内の空文字列（""）と空のフィールドの区別'
+
+required tests:
+  - logic.test.ts:
+      - '基本整形の round-trip'
+      - '引用スタイル 2 種の出力差'
+      - 'trim モード'
+      - '空行除去'
+      - '区切り文字の選択'
+      - '不正 CSV（閉じない引用等）のエラー'
+      - 'CRLF 正規化'
+  - Tool.test.tsx:
+      - 'ユーザーが CSV を入力して整形結果が表示されること'
+      - 'エラーがユーザーに見えること'
+
+allowed paths:
+  - packages/tools/csv-formatter/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - JavaScript 標準機能だけで実装する（CSV パーサ / シリアライザは独自実装）
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す

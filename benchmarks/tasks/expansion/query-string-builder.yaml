@@ -1,0 +1,56 @@
+id: query-string-builder
+difficulty: easy
+
+description: >
+  キー / 値ペアの行を追加・削除しながらクエリ文字列を組み立てるツール。
+  URLSearchParams でエンコードする。既存のクエリ文字列を貼り付けて行へ分解（import）する
+  機能も持つ。
+
+requirements:
+  - 'キー / 値のペアを複数行編集できる（行の追加・削除）'
+  - '出力は URLSearchParams の仕様でエンコードしたクエリ文字列'
+  - '出力は入力に応じて自動更新（リアルタイム）あるいはボタン更新のどちらかでよい'
+  - 'キーまたは値が空の行は無視する'
+  - '同じキーの重複は許可し、繰り返しキー（?a=1&a=2）として出力する'
+  - 'クエリ文字列を貼り付けて行に分解できる（import）'
+  - '結果はコピーできる（既存の CopyButton を使用）'
+
+edge cases:
+  - '行が 1 つもない場合は空文字列を出力する（エラーにしない）'
+  - 'キーのみ入力（値が空）の行は key= として出力する'
+  - 'キーが空で値のみの行は無視する'
+  - '日本語・特殊文字のエンコード'
+  - 'import で ? 始まりのクエリ文字列も受理する'
+  - 'import の結果が不正な形式（= のない部分等）でもクラッシュしない'
+  - '行の数が多い場合でも動作する（制限は任意で 100 行程度でよい）'
+
+required tests:
+  - logic.test.ts:
+      - 'ペア配列からクエリ文字列を組み立てる'
+      - '空行 / 空キー行の無視'
+      - '重複キーの繰り返し出力'
+      - 'エンコード'
+      - 'クエリ文字列の import（? あり / なし / デコード）'
+  - Tool.test.tsx:
+      - 'ユーザーが行を追加してクエリ文字列が組み上がること'
+      - '行の削除と import が動作すること'
+
+allowed paths:
+  - packages/tools/query-string-builder/**
+
+forbidden changes:
+  - root package.json / pnpm-workspace.yaml / pnpm-lock.yaml
+  - packages/core/** / packages/ui/** / apps/web/** / scripts/**
+  - README.md / results/** / benchmarks/** / 他の packages/tools/** 配下
+
+validation commands:
+  - pnpm format:check
+  - pnpm lint
+  - pnpm typecheck
+  - pnpm test
+  - pnpm build
+
+dependency policy:
+  - 新しい npm dependency を追加しない
+  - URLSearchParams 等の Web Platform API だけで実装する
+  - 実装にどうしても新しい dependency が必要な場合は実装を止めて ESCALATE: DEPENDENCY_REQUIRED を返す
